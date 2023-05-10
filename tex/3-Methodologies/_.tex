@@ -1,0 +1,243 @@
+\section{Method}
+
+Through the use of the hybrid method derived by [cite], we investigate the shared memory, strong-scaling characteristics of the 2D Poisson equation assembled with the SBP-SAT method. Whereas PDE performance is increasingly studied in a weak-scaling context, we leverage the hybrid formulation of SBP-SAT, decoupling each element to be solved independently. This invokes three research questions:
+
+\begin{enumerate}[label=\textbf{RQ \arabic*.}]
+	\item {Do we observe strong-scaling with the hybrid \mbox{SBP-SAT} method by varying element size?}
+	\item {Does the ideal element size vary w.r.t. the problem size?}
+	\item {Is the ideal element size hardware dependent?}
+\end{enumerate}
+
+\subsection{Problem description}
+
+
+\noindent 
+We assemble a 2D Poisson equation 
+\begin{subequations}
+\begin{equation}
+	\left( \dfrac{\partial^2}{\partial x^2} + \dfrac{\partial^2}{\partial y^2} \right) u(x, y) = f(x, y) 
+\end{equation}
+\noindent 
+defined over the domain
+\begin{equation}
+	0 \leq x \leq 1,
+\end{equation}
+\begin{equation}
+	0 \leq y \leq 1,
+\end{equation}
+\noindent
+given the boundary conditions
+\begin{equation}
+	u(0, y) = \text{sin}(y),
+\end{equation}
+\begin{equation}
+	u(1, y) = \text{sin}(\pi + y),
+\end{equation}
+\begin{equation}
+	\dfrac{\partial u(x, 0)}{\partial y} = -\pi \text{cos}(\pi x),
+\end{equation}
+\begin{equation}
+	\dfrac{\partial u(x, 1)}{\partial y} = -\pi \text{cos}(\pi x)
+\end{equation}
+\noindent 
+and source function
+\begin{equation}
+	f(x, y) = -2 \pi^2 u(x, y). 
+\end{equation}
+\end{subequations}
+\noindent 
+This sets up the manufactured solution
+\begin{equation}
+	u(x, y) = sin(\pi x + \pi y).
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Hybrid scheme}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The hybridized SBP-SAT scheme discretizes this problem into the form 
+\begin{equation}
+    \left[\begin{array}{cc}
+        \textbf{M}             & \textbf{F} \\
+        \textbf{F}^{\intercal} & \textbf{D}
+    \end{array}\right] 
+    \left(\begin{array}{c}
+        u \\
+        \lambda
+    \end{array}\right) = 
+    \left(\begin{array}{c}
+        \bar{g} \\
+        \bar{g}_\delta
+    \end{array}\right),
+\end{equation}
+\noindent
+and following from {\color{red} [cite]} we use the Schur complement, $
+(\textbf{D} - \textbf{F}^{\intercal} \textbf{M}^{-1} \textbf{F}) \lambda 
+= \bar{g}_\delta - \textbf{F}^{\intercal} \textbf{M}^{-1} \bar{g}$, to 
+solve this system in two parts: the global problem,
+\begin{subequations}
+\begin{equation}
+\lambda_{\textbf{A}} := \bar{g}_\delta - \textbf{F}^{\intercal} \text{solve}(\textbf{M}, \bar{g})
+\end{equation}
+\begin{equation}
+\lambda_{\textbf{b}} := \textbf{D} - \textbf{F}^{\intercal} \text{solve}(\textbf{M}, \textbf{F})
+\end{equation}
+\begin{equation}
+\lambda := \text{solve}(\lambda_{\textbf{A}}, \lambda_{\textbf{b}}),
+\end{equation}
+\end{subequations}
+\noindent
+and the local problem,
+\begin{equation} 
+u := \text{solve}(\textbf{M}, (\bar{g} - \textbf{F} \times \lambda)).
+\end{equation}
+
+\input{./figure/block_diagram}
+
+
+
+\subsection{Complexity of the trace system}
+
+\noindent
+The matrix used to solve $\lambda$, i.e., $\lambda_A = D - F^{\intercal}M^{-1}F$ is $NI \times NI$. Fixing the global row length, $\bar{N}$, the local row length, $N$, is given in terms of the number of elements per row, $N = \frac{\bar{N}}{E}$, and the number of interfaces is given as $I = 2E^2 - 2E$. The dimensions of $\lambda_A$ can then be written as 
+\begin{equation}
+	2\bar{N}E - 2\bar{N} \times 2\bar{N}E - 2\bar{N}. 
+\end{equation}
+The number of non-zeros in $F^{\intercal}M^{-1}F$ are given by
+\begin{subequations}
+\begin{equation}
+	N \sum_{i=1}^{E^2} (\phi_i^2)
+\end{equation}
+where
+\begin{equation}
+	\textbf{F}^{\text{ind}} = \left[\textbf{f}^{\text{ind}}_1 \cdots \textbf{f}^{\text{ind}}_{E^2}\right] \in \mathbb{Z}^{E^2 \times I},
+\end{equation}
+\begin{equation}
+	\phi = \left[ \text{nnz}(\textbf{f}^{\text{ind}}_1) \cdots \text{nnz}(\textbf{f}^{\text{ind}}_{E^2}) \right] \in \mathbb{Z}^{E^2}, 
+\end{equation}
+\end{subequations}
+or, the sum of the square of the number of internal interfaces per element. As this problem constrains the layout of element we can write $\phi$ as 
+\begin{equation}
+	\phi = \left[ \underbrace{2, 2, 2, 2}_{4}, \underbrace{3 \cdots 3}_{4E - 8}, \underbrace{4 \cdots 4}_{(E-2)^2} \right] \in \mathbb{Z}^{E^2}, 
+\end{equation}
+where $2\text{'s}$ denote the corner elements, $3\text{'s}$ denote the boundary elements, and $4\text{'s}$ denote the internal elements. The ordering of the rows in $\textbf{F}^{\text{ind}}$ may not be equivalent in this case, but the final sum will be identical. Throughout the rest of the problem this is not an issue if the ordering remains consistent. 
+
+With this, we derive the non-zero density of $\textbf{F}^{\intercal}\textbf{M}^{-1}\textbf{F}$ as a function of the number of elements per row 
+\begin{equation}
+	\text{nzd}(E) = \frac{\bar{N}/E (16E^2 - 28E + 8)}{(2\bar{N}E - 2\bar{N})^2}.
+\end{equation}
+\begin{equation}
+	\text{nzd}(E) = \frac{16E^2 - 28E + 8}{4E^3 - 4E^2 + E}.
+\end{equation}
+
+\begin{center}
+\pgfplotsset{compat=newest, width=\columnwidth}
+\begin{tikzpicture}
+\begin{axis}[height=2in,
+	xlabel={$E^2$},
+    ylabel={Non-zero density}]
+    \addplot[color=red,smooth,thick] table[col sep=comma,header=false,
+      x index=0,y index=1] {data/density};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+% 10000, 50000, 100000, 1000000
+
+
+
+\noindent
+We store $\textbf{F}$ as a vector of vectors to compute $\textbf{M}^{-1}\textbf{F}$. That is, for each directional $\textbf{F}^k$ boundary we store a list of $N$ vectors
+
+\begin{equation}
+	\textbf{F}^k = \left[\textbf{f}^k_1 \cdots \textbf{f}^k_N\right] \in \mathbb{R}^{N \times N^2}.
+\end{equation} 
+
+\noindent
+In our implementation each vector $\textbf{f}^k_i$ is a PETSc vector. This method is in contrast to storing $\textbf{F}$ contiguously, and allows for the computation of $\textbf{M}^{-1}\textbf{F}$ from the local matrices of $\textbf{M}$, stored similarly as
+
+\begin{equation}
+	\textbf{M} = \left\{\textbf{M}_1 \cdots \textbf{M}_p\right\} \in \mathbb{R}^{N_{E}N^2 \times N_{E}N^2}, p \leq E.
+\end{equation} 
+
+\noindent 
+Where $p$ denotes the number of unique local matrix operators in $\textbf{M}$. 
+
+With this we compute the intermediate result $\textbf{M}^{-1}\textbf{F}$, performing a linear solve of every unique local matrix operator, and every vector of every directional boundary coefficient matrix 
+
+\begin{equation}
+	\text{solve}(\textbf{M}_{i}, \textbf{F}^{k}_j) \text{  for }
+	\begin{array}{l}
+		0 < i \leq p, \\
+		0 < j \leq N, \\
+		0 < k \leq D. \\ 
+	\end{array}
+\end{equation}
+
+\noindent
+The resultant has a similar non-zero pattern as $\textbf{F}$, following the same symbolic block structure. In our implementation we solve this system through direct solvers made available through PETSc. 
+
+\begin{aside}
+	In the homogeneous Poisson equation we have assembled in 
+	eq {\color{red} ?? } 
+
+	\begin{equation}
+		p = \begin{cases}
+		    N_{EF} &  0 \leq N_{EF} < 3 \\ 
+			3 &  3 \leq N_{EF} \\ 
+		\end{cases}.
+	\end{equation} 
+
+	\noindent 
+	When $p = 3$ we have one unique $\textbf{M}_i$ for the elements 
+	along the top Neumann boundaries, the bottom Neumann boundaries, 
+	and the interior elements. Since $p$ is constant when 
+	$E \geq 3$, computational complexity decreases \emph{weakly} 
+	as the number of elements in the system increases. Additionally, 
+	if we fix $N^2E^2$ and increase $E$, we decrease the size of 
+	each solve.
+\end{aside}
+
+\noindent
+The resultant $\textbf{M}^{-1}\textbf{F}$ is stored as $p \times D \times N$ PETSc vectors of length $N^2$, i.e.,
+\begin{subequations}
+\begin{equation}
+	\textbf{M}^{-1}\textbf{F} = [\alpha_{111} \cdots \alpha_{ijk} \cdots \alpha_{NDp}] \in \mathbb{R}^{pDN \times N^2},
+\end{equation}
+\begin{equation}
+	\alpha_{ijk} = \text{solve}(\textbf{M}_i, \textbf{f}_{j}^{k}).
+\end{equation}
+ This is used in the matrix product $(\textbf{F}^{\intercal}) \times (\textbf{M}^{-1}\textbf{F})$, computing
+\begin{equation}
+	\Phi = N \sum_{i = 1}^{E} (\phi_i^2)
+\end{equation}
+vector dot products s.t.,
+\begin{equation}
+	\textbf{F}^{\text{ind}} = \left[\textbf{f}^{\text{ind}}_1 \cdots \textbf{f}^{\text{ind}}_{E}\right] \in \mathbb{Z}^{E \times I},
+\end{equation}
+\begin{equation}
+	\phi = \left[ \text{nnz}(\textbf{f}^{\text{ind}}_1) \cdots \text{nnz}(\textbf{f}^{\text{ind}}_E) \right] \in \mathbb{Z}^{E}.
+\end{equation}
+Thus we have 
+\begin{equation}
+	(\textbf{F}^{\intercal}) \times (\textbf{M}^{-1}\textbf{F}) = 
+	\left[\begin{array}{c}
+		\beta_{1 1 1} \cdots \beta_{\phi_1 \phi_1 N} \in \mathbb{R}^{\phi_1^2N} \\ 
+		\vdots \\
+		\beta_{1 1 1} \cdots \beta_{\phi_E \phi_E N} \in \mathbb{R}^{\phi_E^2N} 
+	\end{array}\right] 
+\end{equation}
+\begin{equation}
+	\beta_{i j k l} = \alpha_{iyl} \textbf{f}^{u}_{l}, \text{ where } y = \text{nzval}(\textbf{f}^{\text{ind}}_{ij}), u = \text{nzval}(\textbf{f}^{\text{ind}}_{ik}),
+\end{equation}
+\end{subequations}
+where $\text{nzval}(v_i)$ returns the $i\text{th}$ non-zero value in the vector $v$. Notably here the result is not square of all non-zeros in $\textbf{F}^\text{ind}$, but the sum of the squares of each row in $\textbf{F}^\text{ind}$, making the storage dependent upon $p$, the number unique elements and the sparsity of $\textbf{F}$. 
+
+The index for any scalar value $\beta_{i j k l}$ in the matrix representation of $\textbf{F}^{\intercal}\textbf{M}^{-1}\textbf{F}$ is given as 
+\begin{equation}
+[(N - 1) i + \text{nzind}(\textbf{f}^{\text{ind}}_{ij}) + l, (N - 1) i + \text{nzind}(\textbf{f}^{\text{ind}}_{ik}) + l]
+\end{equation}
+\noindent
+where $\text{nzind}(v_i)$ returns the index of the $i\text{th}$ non-zero of the vector $v$. Since 
+%\begin{}

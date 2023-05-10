@@ -1,1 +1,1 @@
-\lipsum[1-2]
+In researching the computational performance of numerical PDEs, authors typically select a problem (driven by specific scientific applications) and apply cutting-edge, often hardware dependent optimizations to realize performance. In contrast, with this work we consider reformulations of a hybridized FD problem with a constant volume, but a parameterized number of elements. By solving several instances of the problem with a varied number elements, we project an ideal number of elements for a given architecture.

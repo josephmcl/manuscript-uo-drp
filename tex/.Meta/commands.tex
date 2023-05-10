@@ -11,16 +11,138 @@
 \newcommand\convertdate[1]{\expandafter\convertdateaux#1\relax}
 \def\convertdateaux#1 #2, #3\relax{#2.\@ #1 #3}
 
-\pretitle{\begin{center}\normalfont\Large {\bfseries\color{SpecialBlue} 
-    {\Huge!!} \kern 1.5 em DRAFT COPY -- DO NOT DISTRIBUTE \kern 1.5 em {\Huge!!}\\} }
-\posttitle{\par\end{center}}
+% \pretitle{\begin{center}\normalfont\Large {\bfseries\color{SpecialBlue} 
+%    {\Huge!!} \kern 1.5 em DRAFT COPY -- Do Distrubte \kern 1.5 em {\Huge!!}\\} }
+% \posttitle{\par\end{center}}
 
-\predate{\begin{center}\normalfont\bfseries\large\color{SpecialBlue}}
-\date{«\kern 0.75em Compiled on \today\kern 0.75em »}
-\postdate{\end{center}}
+%\predate{\begin{center}\normalfont\bfseries\large\color{SpecialBlue}}
+% \date{«\kern 0.75em Compiled on \today\kern 0.75em »}
+% \postdate{\end{center}}
+
+\pretitle{\Large\justifying\noindent\bfseries}
+\posttitle{\\[1em]}
+
+\preauthor{\justifying\noindent}
+\postauthor{\\[1em]}
+
+\predate{}
+\date{}
+\postdate{}
 
 \renewcommand{\abstractnamefont}{\normalfont\bfseries}
 \renewcommand{\abstracttextfont}{\normalfont\small\itshape}
-\renewcommand{\linenumberfont}{\normalfont\tiny\color{SpecialBlue}}
+\renewcommand{\linenumberfont}{\normalfont\footnotesize\color{SpecialGreen}\emph}
 
-\newcommand{\fakecite}{{\color{SpecialBlue} «\kern 0.5em cite\kern 0.5em »}}
+\newcommand{\fakecite}{{\color{SpecialBlue} \guillemotleft\kern 0.5em cite\kern 0.5em\guillemotright}}
+
+\definecolor{rulecolor}{rgb}{0.39,0.36,0.39}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\renewcommand{\abstractname}{}
+
+\renewenvironment{abstract}
+ {\small
+  \begin{center}
+  \bfseries \abstractname \vspace{-3em} \vspace{0em}
+  \end{center}
+  %{\color{rulecolor}\rule{\linewidth}{1pt}}
+  \list{}{%
+    \setlength{\leftmargin}{5em}% <---------- CHANGE HERE
+    \setlength{\rightmargin}{\leftmargin}%
+  }%
+  \item\relax}
+ {\vspace{-3em}\noindent\color{rulecolor}\rule{\linewidth}{1pt}\vspace{5em}\endlist}
+
+
+
+\newenvironment{aside}
+  {\begin{mdframed}[style=0,%
+    backgroundcolor=black!5,
+      bottomline=true,topline=true,leftline=false,rightline=false,leftmargin=1em,rightmargin=1em,%
+          innerleftmargin=1em,innerrightmargin=1em,linewidth=1pt,%
+      skipabove=7pt,skipbelow=7pt]\small}
+  {\end{mdframed}}
+
+\def\mytypesetter#1{% page 813
+  \pgfmathparse{#1/pi}%
+  \pgfmathprintnumber{\pgfmathresult}$\pi$%
+}
+
+\definecolor{pal1}{RGB}{68, 1, 84}
+\definecolor{pal2}{RGB}{68, 57, 131}
+\definecolor{pal3}{RGB}{49, 104, 142}
+\definecolor{pal4}{RGB}{33, 145, 140}
+\definecolor{pal5}{RGB}{53, 183, 121}
+\definecolor{pal6}{RGB}{44, 215, 67}
+\definecolor{pal7}{RGB}{253, 231, 37}
+
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+\newcommand*{\shifttext}[2]{%
+  \settowidth{\@tempdima}{#2}%
+  \makebox[\@tempdima]{\hspace*{#1}#2}%
+}
+
+\newenvironment{mcfigure}
+  {\par\medskip\noindent\minipage{\linewidth}}
+  {\endminipage\par\medskip}
+
+
+\tikzset{
+    ncbar angle/.initial=90,
+    ncbar/.style={
+        to path=(\tikztostart)
+        -- ($(\tikztostart)!#1!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztotarget)$)
+        -- ($(\tikztotarget)!($(\tikztostart)!#1!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztotarget)$)!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztostart)$)
+        -- (\tikztotarget)
+    },
+    ncbar/.default=0.5cm,
+}
+
+\tikzset{square left brace/.style={ncbar=0.1cm}}
+\tikzset{square right brace/.style={ncbar=-0.1cm}}
+
+\makeatletter
+\newcounter{tikz@scale@num}
+\newsavebox{\measure@tikzpicture}
+\NewEnviron{scaletikzpicturetowidth}[2][]{%
+  % optional argument #1 is passed to \tikzsetnextfilename if not empty
+  \stepcounter{tikz@scale@num}%
+  \def\tikz@width{#2}%
+  \def\tikzscale{1}\begin{lrbox}{\measure@tikzpicture}%
+  \BODY
+  \end{lrbox}%
+  \pgfmathparse{#2/\wd\measure@tikzpicture}%
+  \ifcsname tikzscale\number\value{tikz@scale@num}\endcsname\else
+      \expandafter\xdef\csname tikzscale\number\value{tikz@scale@num}\endcsname{\pgfmathresult}%
+  \fi
+  \tikzset{external/system call={pdflatex \tikzexternalcheckshellescape -halt-on-error -interaction=batchmode -jobname "\image" "\string\expandafter\string\edef\string\csname\space tikzscale\number\value{tikz@scale@num}\string\endcsname{\csname tikzscale\number\value{tikz@scale@num}\endcsname}\texsource"}}%
+  \edef\tikzscale{\csname tikzscale\number\value{tikz@scale@num}\endcsname}%
+  \ifcat$#1$\else\tikzsetnextfilename{#1}\fi
+  \BODY
+}
+\makeatother
