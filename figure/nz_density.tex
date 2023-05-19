@@ -1,0 +1,26 @@
+\pgfplotsset{compat=newest, width=\columnwidth}
+\begin{tikzpicture}
+\begin{axis}[height=2in,
+	xlabel={$\ell^2$ (total elements)},
+  xtick={9, 144, 484, 1024},
+    ylabel={Non-zero density of $\symbf{\lambda}_{\textbf{A}}$},
+    legend style={font=\footnotesize},
+    legend cell align={left}]
+    \addplot[
+    	select coords between index={1}{2500},
+    	color=red,smooth,thick] 
+    	table[col sep=comma,header=false,
+      	x index=0,y index=1] {data/density1};
+    \addlegendentry{$\bar{n}^2 = 10000$}
+    \addplot[
+    	select coords between index={1}{2500},
+    	color=blue,smooth,thick] table[col sep=comma,header=false,
+      x index=0,y index=1] {data/density2};
+    \addlegendentry{$\bar{n}^2 = 100000$}
+    \addplot[
+    	select coords between index={1}{2500},
+    	color=black,smooth,thick] table[col sep=comma,header=false,
+      	x index=0,y index=1] {data/density3};
+    \addlegendentry{$\bar{n}^2 = 1000000$}
+\end{axis}
+\end{tikzpicture}

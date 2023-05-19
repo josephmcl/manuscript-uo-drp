@@ -126,23 +126,13 @@
 \tikzset{square left brace/.style={ncbar=0.1cm}}
 \tikzset{square right brace/.style={ncbar=-0.1cm}}
 
-\makeatletter
-\newcounter{tikz@scale@num}
-\newsavebox{\measure@tikzpicture}
-\NewEnviron{scaletikzpicturetowidth}[2][]{%
-  % optional argument #1 is passed to \tikzsetnextfilename if not empty
-  \stepcounter{tikz@scale@num}%
-  \def\tikz@width{#2}%
-  \def\tikzscale{1}\begin{lrbox}{\measure@tikzpicture}%
-  \BODY
-  \end{lrbox}%
-  \pgfmathparse{#2/\wd\measure@tikzpicture}%
-  \ifcsname tikzscale\number\value{tikz@scale@num}\endcsname\else
-      \expandafter\xdef\csname tikzscale\number\value{tikz@scale@num}\endcsname{\pgfmathresult}%
-  \fi
-  \tikzset{external/system call={pdflatex \tikzexternalcheckshellescape -halt-on-error -interaction=batchmode -jobname "\image" "\string\expandafter\string\edef\string\csname\space tikzscale\number\value{tikz@scale@num}\string\endcsname{\csname tikzscale\number\value{tikz@scale@num}\endcsname}\texsource"}}%
-  \edef\tikzscale{\csname tikzscale\number\value{tikz@scale@num}\endcsname}%
-  \ifcat$#1$\else\tikzsetnextfilename{#1}\fi
-  \BODY
-}
-\makeatother
+
+
+\newcommand{\gbd}{\bar{\textbf{g}}_{\symbf{\delta}}}
+
+\pgfplotsset{select coords between index/.style 2 args={
+    x filter/.code={
+        \ifnum\coordindex<#1\def\pgfmathresult{}\fi
+        \ifnum\coordindex>#2\def\pgfmathresult{}\fi
+    }
+}}
