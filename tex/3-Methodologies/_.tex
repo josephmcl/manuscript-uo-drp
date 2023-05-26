@@ -466,10 +466,10 @@ where $\text{nzind}(v_i)$ returns the index of the $i\text{th}$ non-zero of the 
 \subsection{Computational model}
 \begin{equation}
 \begin{split}
-	\text{FLOPs} = & \underbrace{2\bar{n}^2/\ell (16\ell^2 - 28\ell + 8) + 4\ell(
+	\text{FLOPs} = & \underbrace{2(\bar{n}/\ell)^2 (16\ell^2 - 28\ell + 8) + 4\ell(
 	\bar{n})^3}_{\text{compute }\textbf{F}^{\intercal} \textbf{M}^{-1} \textbf{F}} + \\
-	& \underbrace{2 \ell \bar{n}^2 + \ell \bar{n}^3}_{\text{compute }\textbf{F}^{\intercal} \textbf{M}^{-1} \bar{g}} 
-	+ \underbrace{ \ell \times \bar{n}^3 }_{\text{solve locals}} 
+	& \underbrace{2 \bar{n}^2 / \ell + \bar{n}^3 / \ell^2}_{\text{compute }\textbf{F}^{\intercal} \textbf{M}^{-1} \bar{g}} 
+	+ \underbrace{\bar{n}^3 / \ell^2 }_{\text{solve locals}} 
 	+ \underbrace{(2\ell \bar{n} - 2\bar{n})^3}_{\text{solve } \lambda} 
 \end{split}
 \end{equation}
