@@ -10,14 +10,14 @@ the order of the approximation of the PDE being solved \citep{}. However, the di
 uncommon and specialized. 
 
 There definitionally exists is a relationship between the size of scale of computation and it's performance, but this is less obvious as it relates
-to the specifics of the mesh created for a problem. This invokes three research questions:
+to the specifics of the mesh created for a problem. This provokes two 
+research questions:
 
 \begin{enumerate}[label=\textbf{\footnotesize RQ\arabic*.}]
 	\item {Do we achieve strong-scaling with the hybrid \mbox{SBP-SAT} 
 		   method by adding more elements?}
-	\item {Is there an ideal element size for performance , and does it 
+	\item {Is there an ideal number of elements for performance, and does it 
 		   vary with other quantities like problem size or thread count?}
-	\item {}
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -320,6 +320,7 @@ The number of non-zeros in $\textbf{F}^{\intercal}(\textbf{M}^{-1}\textbf{F})$ a
 \begin{subequations}
 \begin{equation}
 	n \sum_{i=1}^{\ell^2} (\phi_i^2)
+	\label{eqn:nz_sum}
 \end{equation}
 where
 \begin{equation}
@@ -333,7 +334,9 @@ or, the sum of the square of the number of internal interfaces per element. With
 \begin{equation}
 	\phi = \left[ \underbrace{2, 2, 2, 2}_{4}, \underbrace{3 \cdots 3}_{4\ell - 8}, \underbrace{4 \cdots 4}_{(\ell-2)^2} \right] \in \mathbb{Z}^{\ell^2}, 
 \end{equation}
-where $2\text{'s}$ denote the corner elements, $3\text{'s}$ denote the boundary elements, and $4\text{'s}$ denote the internal elements. The ordering of the rows in $\textbf{F}^{\text{ind}}$ may not be equivalent in this case, but the final sum will be identical. Throughout the rest of the problem this is not an issue if the ordering remains consistent. 
+where $2\text{'s}$ denote the corner elements, $3\text{'s}$ denote the boundary elements, and $4\text{'s}$ denote the internal elements. In eq. \eqref{eqn:nz_sum} we square each $\phi_i$ because $\textbf{F}^{\intercal}$ and  $\textbf{M}^{-1}\textbf{F}$ can both be derived from substitutions of $\textbf{F}^{\text{ind}}$, and the sum is multiplied by $n$ there are 
+
+The ordering of the rows in $\textbf{F}^{\text{ind}}$ may not be equivalent in this case, but the final sum will be identical. Throughout the rest of the problem this is not an issue if the ordering remains consistent. 
 
 With this, we derive the non-zero density of $\textbf{F}^{\intercal}\textbf{M}^{-1}\textbf{F}$ as a function of the number of elements per row 
 \begin{equation}
@@ -363,7 +366,7 @@ With this, we derive the non-zero density of $\textbf{F}^{\intercal}\textbf{M}^{
 \noindent
 This is plotted in fig. \ref{fig:nz_density} for several values of $\bar{n}$ alongside of a plot of the quantity of non-zeros. Here we see that when the $\bar{n}^2$ is fixed, the size of the trace system is governed by a 3rd degree polynomial while the quantity of non-zeros is 2nd order, resulting in different non-zero densities depending on the $\ell$. This is significant as performance often depends on the choice of solvers and preconditioners and that are well suited to the size of non-zero pattern of the problem \citep{bollhofer2020state}. % todo: find more sources here 
 
-In our implementation each non-zero corresponds to a vector dot product between 
+In our implementation each non-zero corresponds to a vector dot product between a a non-zero row of the sub-matrices of $\textbf{F}^{\intercal}$ and a decomposed result of computing  $\textbf{M}^{-1}\textbf{F}$
 
 \noindent
 We store $\textbf{F}$ as a vector of vectors to compute $\textbf{M}^{-1}\textbf{F}$. That is, for each directional $\textbf{F}^k$ boundary we store a list of $N$ vectors
@@ -459,3 +462,18 @@ The index for any scalar value $\beta_{i j k l}$ in the matrix representation of
 \noindent
 where $\text{nzind}(v_i)$ returns the index of the $i\text{th}$ non-zero of the vector $v$. Since 
 %\begin{}
+
+\subsection{Computational model}
+\begin{equation}
+\begin{split}
+	\text{FLOPs} = & \underbrace{2\bar{n}^2/\ell (16\ell^2 - 28\ell + 8) + 4\ell(
+	\bar{n})^3}_{\text{compute }\textbf{F}^{\intercal} \textbf{M}^{-1} \textbf{F}} + \\
+	& \underbrace{2 \ell \bar{n}^2 + \ell \bar{n}^3}_{\text{compute }\textbf{F}^{\intercal} \textbf{M}^{-1} \bar{g}} 
+	+ \underbrace{ \ell \times \bar{n}^3 }_{\text{solve locals}} 
+	+ \underbrace{(2\ell \bar{n} - 2\bar{n})^3}_{\text{solve } \lambda} 
+\end{split}
+\end{equation}
+
+
+% \textbf{F}^{\intercal} \textbf{M}^{-1} \textbf{F}
+

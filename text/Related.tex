@@ -1,4 +1,38 @@
-\section{Related Work}
+
+Partial differential equations (PDEs) are widely studied and utilized to model natural and physical phenomena. 
+
+Definitionally, a PDE is an equation where the solution depends upon the partial derivatives of several variables of a multivariate function.
+
+
+
+Numerical PDEs problems are valued by domain scientists for their ability to simulate phenomena related specific domains, as well as researchers in high-performance computing for their tendency to scale to larger problem sizes. 
+
+are the subject of interest to researchers who value their formulation and application to realize application-based research as w
+
+, as well as researchers who value realizing 
+
+relationship between researchers interested in 
+
+\subsection*{Meshing}
+Certain numerical PDE frameworks can be readily scaled to a larger problem by constructing a different mesh over the domain of the problem. Meshing is typically studied w.r.t. it's effects on of accuracy of the results generated, as meshes with low-quality elements can lead to numerical errors in the solution \citep{sharma2021overset, dervieux2003theoretical}. Mesh refinement techniques emerge here, providing methods to algorithmically improve the accuracy of the solution by regenerating the mesh where low-quality elements are found \citep{berger1984adaptive, verfurth1994posteriori, geiersbach2020stochastic, bespalov2022error}. 
+
+
+% What is meshing
+% Meshing is typically studied to optimize for accuracy 
+% Meshing applies mostly to finite elements 
+
+% What the hybrid method is. 
+
+This work largely applies to finite element methods, where the
+
+
+<talk about sbp-sat and hybridization> 
+
+The summation-by-parts with simultaneous approximation terms (SBP-SAT) method formally proves stability within a system utilizing finite differences. The SBP property is the discrete analogue to integration-by-parts tech
+
+
+
+closely related to \emph{Guyan reduction methods} and \emph{static condensation methods} \citep{guyan1965reduction, wilson1974static}
 
 Free variables in a 2D SBP-SAT scheme:
 \begin{itemize} 

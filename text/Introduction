@@ -1,29 +1,8 @@
-Partial differential equations (PDEs) are widely studied and utilized to model natural and physical phenomena. 
-
-Definitionally, a PDE is an equation where the solution depends upon the partial derivatives of several variables of a multivariate function.
+The hybridized formulation of numerical partial differential equations (PDEs) addresses the large amounts of memory needed to solve large systems of equations. This approach splits the domain into several smaller elements can be solved individually after computing a dense global problem that is used to condition each local problem. Hybridized methods are most commonly found in finite element methods (FEMs) \citep{rhebergen2017analysis, frigo2021efficient, fernandez2017hybridized}. However, recent work has assembled finite difference methods (FDMs) with with a hybridized formulation \citep{kozdon2021hybridized}. In either case, the hybridized formulation is typically utilized by application scientists and applied mathematicians for it's ability to formulate a simpler  
 
 
 
-Numerical PDEs problems are valued by domain scientists for their ability to simulate phenomena related specific domains, as well as researchers in high-performance computing for their tendency to scale to larger problem sizes. 
-
-are the subject of interest to researchers who value their formulation and application to realize application-based research as w
-
-, as well as researchers who value realizing 
-
-relationship between researchers interested in 
-
-\subsubsection*{Meshing}
-Certain numerical PDEs can readily be scaled to larger problems through the process \emph{remeshing} where the underlying unstructured mesh is regenerated, and used to compute the same equation. Due to this property, PDEs are frequently leveraged by researchers in high-performance computing to demonstrate \emph{weak-scaling} on increasingly large problem sizes. As such, most numerical PDEs are considered to \emph{memory-bound} problems where the majority of computing time is spent accessing memory and communicating between processors instead of computing within processors. 
-
-Though it is often straightforward to produce a finer mesh for a problem, meshes with consistent quality are much more challenging. Indeed, generating a spurious mesh with low-quality elements can lead to numerical errors in the solution \citep{sharma2021overset}. For this reason, techniques for generating stable meshes, as well as dynamic mesh refinement techniques --- which remesh portions of the geometry where errors occur or more detail is desired -- are of considerable interest across applications utilizing PDEs \citep{geiersbach2020stochastic, bespalov2022error}.
-
-
-<talk about sbp-sat and hybridization> 
-
-The summation-by-parts with simultaneous approximation terms (SBP-SAT) method formally proves stability within a system utilizing finite differences. The SBP property is the discrete analogue to integration-by-parts tale
-
-
-
+In this paper we 
 
 
 
