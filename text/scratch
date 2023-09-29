@@ -1,0 +1,58 @@
+
+In a numerical form suitable to computer systems this often takes form as a linear system of equations, wherein the solution, $x$, is a vector that satisfies 
+\begin{equation}
+\mathbf{A} x = \mathbf{b}. \label{lin-sys}
+\end{equation}
+\noindent
+The matrix $\mathbf{A}$ can often be sparse, on the order of 3 non-zeros per row. 
+
+Sparse linear systems are conventionally memory-bound problems and several techniques have sought to mitigate this. 
+
+We implement and characterize the computational performance of a hybridized technique using finite differences described by \citet{kozdon2021hybridized}. 
+
+
+Hybridization can be viewed as a coupling sub-domains with Dirichlet boundary conditions that yield a set of independent sub-systems and a single Schur-complement system that must be computed alongside it. 
+This gives us a clear 
+
+In this work we use hybridization to partition arbitrary sub-domains within a single continuous domain, but the method feasibly extends any set of domains that are differentiable and continuous along face mappings. 
+
+
+Hybridized methods reduce the memory needed to solve a linear system by coupling several smaller, \emph{local} problems. 
+Each problem can then be solved with a smaller memory footprint. 
+The trade-off is that the solution to a single, \emph{global} problem is necessary to solve the local problems. 
+
+With this we have several different approaches to addressing the memory-bound properties of the problem. Each local problem is indipendent and can be solved in parallel. 
+
+This has several key benefits 
+
+The hybridized formulation of numerical partial differential equations (PDEs) 
+addresses the large amounts of memory needed to solve large systems of equations. This approach splits the domain into several smaller elements can be solved individually after computing a dense global problem that is used to condition each local problem. Hybridized methods are most commonly found in finite element methods (FEMs) \citep{rhebergen2017analysis, frigo2021efficient, fernandez2017hybridized}. However, recent work has assembled finite difference methods (FDMs) with with a hybridized formulation \citep{kozdon2021hybridized}. In either case, the hybridized formulation is typically utilized by application scientists and applied mathematicians for it's ability to formulate a simpler  
+
+
+
+In this paper we 
+
+\subsection{Continuous problem}
+Our treatment of Poisson's Equation on a domain $\Omega \subseteq \mathbb{R}^2$ seeks a function $u \coloneqq \Omega \rightarrow \mathbb{R}$ given the source function, $f \coloneqq \Omega \rightarrow \mathbb{R}$, initial conditions, $g \coloneqq \partial\Omega \rightarrow \mathbb{R}$, and satisfying 
+\begin{gather}
+	\Delta u = f \in \Omega, u\vert_{\partial\Omega} = g. \label{cont-prob}
+\end{gather}
+\noindent 
+We use the method of manufactured solutions (MMS) to verify convergence of our solution. In our 2-D treatment defined over $\left\{0 \leq x \leq 1, 0 \leq y \leq 1 \right\}$ given the boundary conditions, 
+\begin{gather}
+	u(0, y) = \text{sin}(y), \\
+	u(1, y) = \text{sin}(\pi + y), \\
+	\dfrac{\partial u(x, 0)}{\partial y} = -\pi \text{cos}(\pi x), \\
+	\dfrac{\partial u(x, 1)}{\partial y} = -\pi \text{cos}(\pi x),
+\end{gather}
+and source function,
+\begin{gather}
+	f(x, y) = -2 \pi^2 u(x, y),
+\end{gather}
+we employ the manufactured solution ,
+\begin{gather}
+	u(x, y) = sin(\pi x + \pi y).
+\end{gather} 
+
+
+

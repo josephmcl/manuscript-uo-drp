@@ -1,0 +1,26 @@
+\input{./figure/tts}
+\section{Performance evaluation in shared memory}
+\noindent 
+The most performant PDE solvers for large-scale problems are increasingly based on GPUs, but often do so by constraining properties of system, such as enforcing FPD-ness in the case of iterative solvers. We show that the hybrid SBP-SAT method can be compute similarly large problems with fewer constraints on the CPU.  
+
+\subsection{Evaluation}
+
+\input{./figure/runtime_components}
+
+
+\subsection{MatMult Analysis}
+
+\input{./figure/matmult_flopspers}
+
+%\begin{mcfigure}
+%	\centering
+%	\input{./figure/total_gflops.tex}
+%	\captionof{figure}{Total FLOPs used to compute the factorized matrix multiplication in $\textbf{F}^{\intercal} \times (\textbf{M}^{-1} \textbf{F})$ over the number of elements for a constant problem size, $N = 705\kern 0.25em 600$. FLOPs decrease as the size of the constituent inner products decrease in relation to the size of each element.}
+%\end{mcfigure}
+
+
+%\begin{mcfigure}
+%	\centering
+%	\input{./figure/serial_tts_trunc.tex}
+%\end{mcfigure}
+

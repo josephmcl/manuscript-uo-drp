@@ -1,0 +1,83 @@
+\begin{figure*}
+\centering
+\begin{tabular}{lc}
+& \small Total elements \\
+\rotatebox[origin=c]{90}{\small Threads \kern 1em} & {\pgfplotstabletypeset[
+    font=\footnotesize,
+    color cells={
+        min = 1.44, 
+        max = 2.5},
+    /pgfplots/colormap = {whitered}{
+        rgb255(0cm) = (120, 40, 40); rgb255(1cm) = (200, 200, 200)
+    },
+    /color cells/textcolor/.initial = {white},
+    every head row/.style={
+    typeset cell/.code={%% add the word 'Rank'...
+    \ifnum\pgfplotstablecol=\pgfplotstablecols%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{1600 \\}%
+    \else%
+    \ifnum\pgfplotstablecol=1%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{&}%
+    \else%
+    \ifnum\pgfplotstablecol=2%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 9 &}%
+    \else%
+    \ifnum\pgfplotstablecol=3%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 16 &}%
+    \else%
+    \ifnum\pgfplotstablecol=4%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 25 &}%
+    \else%
+    \ifnum\pgfplotstablecol=5%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 36 &}%
+    \else%
+    \ifnum\pgfplotstablecol=6%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 49 &}%
+    \else%
+    \ifnum\pgfplotstablecol=7%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 64 &}%
+    \else%
+    \ifnum\pgfplotstablecol=8%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 100 &}%
+    \else%
+    \ifnum\pgfplotstablecol=9%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 144 &}%
+    \else%
+    \ifnum\pgfplotstablecol=10%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 196 &}%
+    \else%
+    \ifnum\pgfplotstablecol=11%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 225 &}%
+    \else%
+    \ifnum\pgfplotstablecol=12%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 400 &}%
+    \else%
+    \ifnum\pgfplotstablecol=13%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 441 &}%
+    \else%
+    \ifnum\pgfplotstablecol=14%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 576 &}%
+    \else%
+    \ifnum\pgfplotstablecol=15%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 784 &}%
+    \else%
+    \ifnum\pgfplotstablecol=16%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 900 &}%
+    \else%
+    \ifnum\pgfplotstablecol=17%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{ 1225 &}%
+    \else%
+    \pgfkeyssetvalue{/pgfplots/table/@cell content}{1600 \\}%
+    \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+    }%%
+    },
+    col sep = comma,
+    columns/0/.style={reset styles}
+]{./data/tts}} \\
+\end{tabular}
+\caption{Time to solution (seconds) given fixed problem size for various 
+    element and thread configurations on a single Xeon E5-2690 node.}
+\end{figure*}
+
+
+%,9,16,25,36,49,64,100,144,196,225,400,441,576,784,900,1225,1600
