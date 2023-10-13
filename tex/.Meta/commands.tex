@@ -199,4 +199,21 @@
     \pgfmathparse{ln(#1)/ln(10)}%
 }
 
-\mathtoolsset{showonlyrefs}
+% Show reference number only on referenced slides.
+% \mathtoolsset{showonlyrefs}
+
+% Caption configuration
+\captionsetup[figure]{
+  labelfont={bf},
+  name={Figure},
+  labelsep=period, 
+  font=small}
+
+
+% Figure reference macro 
+\newcommand*{\figref}[1]{Fig. \ref{#1}}
+
+% Equation reference macro 
+\newcommand*{\eqnref}[1]{Eq. \ref{#1}}
+
+

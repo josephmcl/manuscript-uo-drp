@@ -1,7 +1,14 @@
-% 3-Methodologies.tex 
+% 
+% 
+%
+\section{METHODOLOGY}
+
+I this section, we implement a solver for the 2-D Poisson Equation using the Hybridized SBP-SAT method. We implement our solver in  in {\color{red}PETSc}
+
+In this section, we propose an alternative topology, ×Grid, which simplifies client handoff procedures using pyephem’s kelperian orbit models [19], overcoming the limitations of the +Grid described above. Additionally, we describe a low- cost routing scheme atop ×Grid which selects the correct return node without computing the state of the network.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Method} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 What is currently lacking in our understanding of the hyrbidized FD and 
@@ -286,33 +293,35 @@ every vector of every directional boundary coefficient matrix
 This result has a similar non-zero pattern as $\textbf{F}$, following the same symbolic block structure. In our implementation we solve this system through direct solvers made available through PETSc. 
 
 \begin{aside}
-	In the homogeneous Poisson equation we have assembled in 
-	eq. \eqref{eqn:problem_desc}
-
+	In the homogeneous Poisson equation in Eq. \eqnref{eqn:problem_desc} we have 
 	\begin{equation}
 		p = \begin{cases}
 		    \ell &  0 \leq \ell < 3 \\ 
 			3 &  3 \leq \ell \\ 
 		\end{cases}.
 	\end{equation} 
-
 	\noindent 
-	When $p = 3$ we have one unique $\textbf{M}_i$ for the elements 
-	along the top Neumann boundaries, the bottom Neumann boundaries, 
-	and the interior elements. Since $p$ is constant when 
-	$\ell \geq 3$, increasing the number of elements, $\ell^2$ decreases the number of solves in eq. \eqref{eqn:mfsolves}, as well as the size of each solve, for a constant global volume, $\bar{n}^2$. 
+	When $p = 3$ we have one unique $\textbf{M}_i$ for the elements along the top Neumann boundaries, the bottom Neumann boundaries, and the interior elements. 
+	Since $p$ is constant when $\ell \geq 3$, increasing the number of elements, $\ell^2$ decreases the number of solves in \eqnref{eqn:mfsolves}, as well as the size of each solve, for a constant global volume, $\bar{n}^2$. 
 \end{aside}
 
 For a fixed $\bar{n}^2$ we write the number of 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Computing the trace MatMult} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+\subsubsection{Computing the trace MatMult} 
 
-The non-zero structure of the matrix used to solve $\symbf{\lambda}$, 
-\emph{i.e.}, eq. \eqref{eqn:global_system_a} provides insight into the complexity the two operations in $\textbf{F}^{\intercal} \times \textbf{M}^{-1} \textbf{F}$. The memory needed to store the decomposed matrix consisting of $\textbf{M}$, $\textbf{F}$, $\textbf{F}^{\intercal}$, $\textbf{D}$ is minimally the size of each unique, decomposed sub-matrix. This is illustrated in fig. \ref{fig:block_diagram}, as the $\textbf{F}$ and $\textbf{F}^{\intercal}$ matrices only contain 4 unique sub-matrices, $\textbf{F}^{1}$, $\textbf{F}^{2}$, $\textbf{F}^{3}$, and $\textbf{F}^{4}$. The uniqueness of $\textbf{M}$ is less obvious here, but by fig. \ref{fig:volume_diagram} we see that there are only 3 unique local problems, one with a Neumann boundary on face 4, another with a Neumann boundary on face 3, and a final problem with a no Neumann boundary conditions.
+%
+%
+%
+The non-zero structure of the matrix used to solve $\symbf{\lambda}$, \emph{i.e.}, \eqnref{eqn:global_system_a} provides insight into the complexity the two operations in $\textbf{F}^{\intercal} \times \textbf{M}^{-1} \textbf{F}$. 
+The memory needed to store the decomposed matrix consisting of $\textbf{M}$, $\textbf{F}$, $\textbf{F}^{\intercal}$, $\textbf{D}$ is minimally the size of each unique, decomposed sub-matrix. 
+This is illustrated in \figref{fig:block_diagram}, as the $\textbf{F}$ and $\textbf{F}^{\intercal}$ matrices only contain 4 unique sub-matrices, $\textbf{F}^{1}$, $\textbf{F}^{2}$, $\textbf{F}^{3}$, and $\textbf{F}^{4}$. 
+The uniqueness of $\textbf{M}$ is less obvious here, but by \figref{fig:volume_diagram} we see that there are only 3 unique local problems, one with a Neumann boundary on face 4, another with a Neumann boundary on face 3, and a final problem with a no Neumann boundary conditions.
 
-Fixing the number of global volume points, $\bar{n}^2$, the number of local volume points per row, $n$, is given in terms of the number of elements per row, $n = \bar{n} / \ell$, and similarly the number of interfaces can be written as $r = 2\ell^2 - 2\ell$. The dimensions of $\symbf{\lambda}_\textbf{A}$ can then be written as 
+Fixing the number of global volume points, $\bar{n}^2$, the number of local volume points per row, $n$, is given in terms of the number of elements per row, $n = \bar{n} / \ell$, and similarly the number of interfaces can be written as $r = 2\ell^2 - 2\ell$. 
+The dimensions of $\symbf{\lambda}_\textbf{A}$ can then be written as 
 \begin{equation}
 	\symbf{\lambda}_\textbf{A} \in \mathbb{R}^{rn \times rn} \equiv \mathbb{R}^{2\bar{n}\ell - 2\bar{n} \times 2\bar{n}\ell - 2\bar{n}}. 
 \end{equation}
@@ -347,19 +356,21 @@ With this, we derive the non-zero density of $\textbf{F}^{\intercal}\textbf{M}^{
 \end{equation}
 
 \begin{figure}
-	\centering
+	{\centering
 	\begin{subfigure}{\columnwidth}
 		\centering
 		\input{figure/nz_density}
-		
 	\end{subfigure}
-	\bigskip
 	\begin{subfigure}{\columnwidth}
 		\centering
 		\input{figure/nonzeros}
-	\end{subfigure}
-	\caption{The non-zero density of $\symbf{\lambda}_{\textbf{A}}$ 
-	plotted as a function of the total number of elements. Though increasing the number of elements adds non-zeros for every new interface between two elements, the size of the matrix increases proportionally faster.}
+	\end{subfigure}}
+	\caption[The non-zero density of $\symbf{\lambda}_{\textbf{A}}$ 
+	plotted as a function of the total number of elements.]{\textbf{The non-zero 
+	density of $\symbf{\lambda}_{\textbf{A}}$ plotted as a function of 
+	the total number of elements.} Though increasing the number of elements adds non-zeros for every new 
+	interface between two elements, the size of the matrix increases 
+	proportionally faster.}
 	\label{fig:nz_density} 
 \end{figure}
 

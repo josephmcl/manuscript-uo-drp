@@ -1,16 +1,23 @@
 %
 %
 %
-
-%
-% 
-%
-In this section, we provide a background on the hybridized SBP-SAT method and provide a description of the 2-D Poisson problem we solve for this paper. 
+In this section, we provide a background on the hybridized SBP-SAT method.
 We also briefly review related approaches to solving linear elliptic PDEs on parallel architectures. 
 
+%
+%
+%
+The 2-D Poisson's equation is given as 
+\begin{equation}
+    \left( \dfrac{\partial^2}{\partial x^2} + \dfrac{\partial^2}{\partial y^2} \right) u(x, y) = f(x, y) 
+\end{equation}
 
-
+%
+%
+%
 Several other formulations techniques have unique properties that improve the computational performance of linear elliptic PDE solvers. 
+
+
 
 
 Sparse linear systems are conventionally memory-bound problems so techniques that approach greater performance by eliminating redundant data in the problem or restating the problem with a lesser memory footprint. 

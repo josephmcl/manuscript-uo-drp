@@ -1,9 +1,29 @@
+%
+%
+%
+\section{NUMERICAL TESTS IN PARALLEL}
+
+%
+%
+%
+In this section we complement our theoretical estimates with the runtimes of a parallel implementation of our numerical system. 
+We fix the size of the problem to 705600 volume points and vary the quantity and size of elements proportionally. 
+Each hybridized system has more than 705600 points as the $\mathbf{F}$ and $\mathbf{F}^{\intercal}$ factors increase the size of the system as we add elements.
+Our implementation was developed largely in PETSc and was tested on the Talapas cluster using an Intel Xeon E5-2690 v4 CPU.
+
 \input{./figure/tts}
-\section{Performance evaluation in shared memory}
-\noindent 
+ 
 The most performant PDE solvers for large-scale problems are increasingly based on GPUs, but often do so by constraining properties of system, such as enforcing FPD-ness in the case of iterative solvers. We show that the hybrid SBP-SAT method can be compute similarly large problems with fewer constraints on the CPU.  
 
 \subsection{Evaluation}
+Three computational kernels comprise the majority of the runtime, SpMV via Eq. \eqref{}, MatMult via \eqref{}, and $\symbf{\lambda}$ linear solve via Eq. \eqref{}.
+
+In our problem, the matrix-matrix solve in the global system takes a relatively small amount of time because we only have three unique matrices to solve. 
+As we increase the number of elements, we decrease the size of these solves, resulting in it comprising an increasingly minimal portion of the overall runtime. 
+In more heterogeneous systems this operation will consist of a marginally larger portion of the overall runtime.
+Figure \ref{} the 
+
+
 
 \input{./figure/runtime_components}
 
@@ -18,6 +38,9 @@ The most performant PDE solvers for large-scale problems are increasingly based 
 %	\captionof{figure}{Total FLOPs used to compute the factorized matrix multiplication in $\textbf{F}^{\intercal} \times (\textbf{M}^{-1} \textbf{F})$ over the number of elements for a constant problem size, $N = 705\kern 0.25em 600$. FLOPs decrease as the size of the constituent inner products decrease in relation to the size of each element.}
 %\end{mcfigure}
 
+\subsection{SpMV Analysis}
+
+\subsection{Delta Solve Analysis}
 
 %\begin{mcfigure}
 %	\centering

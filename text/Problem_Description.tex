@@ -1,0 +1,49 @@
+%
+%
+%
+Through the use of the hybridized SBP-SAT method, we investigate the shared memory, strong-scaling characteristics of the 2D Poisson equation assembled with the SBP-SAT method \citep{kozdon2021hybridized}. 
+Whereas PDE performance is largely considered in a weak-scaling context, we study the strong-scaling characteristics by fixing the number of volume points, leveraging the hybrid formulation of the SBP-SAT method, to solve a varied size and quantity of independent problems.
+
+%
+%
+%
+\noindent 
+We assemble a 2D Poisson equation 
+\begin{subequations}
+\begin{equation}
+	\left( \dfrac{\partial^2}{\partial x^2} + \dfrac{\partial^2}{\partial y^2} \right) u(x, y) = f(x, y) 
+\end{equation}
+\noindent 
+defined over the domain
+\begin{equation}
+	0 \leq x \leq 1,
+\end{equation}
+\begin{equation}
+	0 \leq y \leq 1,
+\end{equation}
+\noindent
+given the boundary conditions
+\begin{equation}
+	u(0, y) = \text{sin}(y),
+\end{equation}
+\begin{equation}
+	u(1, y) = \text{sin}(\pi + y),
+\end{equation}
+\begin{equation}
+	\dfrac{\partial u(x, 0)}{\partial y} = -\pi \text{cos}(\pi x),
+\end{equation}
+\begin{equation}
+	\dfrac{\partial u(x, 1)}{\partial y} = -\pi \text{cos}(\pi x)
+\end{equation}
+\noindent 
+and source function
+\begin{equation}
+	f(x, y) = -2 \pi^2 u(x, y). 
+\end{equation}
+	\label{eqn:problem_desc}
+\end{subequations}
+\noindent 
+This sets up a problem utilizing the manufactured solution
+\begin{equation}
+	u(x, y) = sin(\pi x + \pi y).
+\end{equation}

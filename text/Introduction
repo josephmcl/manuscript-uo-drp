@@ -12,7 +12,7 @@ The most successful high-performance techniques employ more favorable mathematic
 %
 % 
 %
-Hybridization \emph{i.e.}, Guyan reduction or static condensation, is one approach to reducing the computational complexity of  computational systems. 
+Hybridization \emph{i.e.}, Guyan reduction \citep{guyan1965reduction} or static condensation \citep{wilson1974static}, is one approach to reducing the computational complexity of  computational systems. 
 Hybridization is more utilized using finite elements \citep{rhebergen2017analysis, frigo2021efficient, fernandez2017hybridized}, but recent work from \citet{kozdon2021hybridized} has brought it into finite differences as well. 
 This method reduces the complexity of the computational system, assembled as a system of coupled sub-domains that can each be solved independently alongside an additional global system. 
 In a shared memory context this independence allows problems to be computed that would otherwise utilize too much memory. 
@@ -32,7 +32,7 @@ Another paper from \citet{badrkhani2023matrix} utilizes hybridization to couple 
 %
 %
 %
-The flexibility of hybridization makes it a compelling choice for a assembling large parallel problems. 
+The flexibility of hybridization makes it a compelling choice for a computing large parallel problems. 
 Each sub-domain in a Hybridized problem is solved independently, though several of the \emph{building blocks} needed to assemble a local problem can be shared between problems further reducing the computational complexity. 
 However, increasing the number of local problem has the effect of increasing the size of the global problem. 
 It follows that there should exist a trade off between the number of local problems and cost of computing the global system. 
@@ -40,8 +40,8 @@ It follows that there should exist a trade off between the number of local probl
 %
 % 
 %
-In this work we explore that trade off in a shared-memory CPU-based problem. 
-We assemble a problem in hybridized SBP-SAT finite difference scheme, solving the 2-D Poisson equation, coupling multiple sub-domains with boundary coefficients analogous to Dirichlet boundary conditions \emph{i.e.}, numerical fluxes as given in finite elements, proportionally varying the volume points within each sub-domain as to fix the number of total volume points. 
+In this work we explvore that trade off in a shared-memory CPU-based problem. 
+We assemble a problem in hybridized SBP-SAT finite difference scheme, solving the 2-D Poisson equation, coupling multiple sub-domains with penalty terms analogous to Dirichlet boundary conditions \emph{i.e.}, numerical fluxes as given in finite elements, proportionally varying the volume points within each sub-domain as to fix the number of total volume points. 
 We implement this in {\color{red}PETSc} and view performance as a function of the number of volume points in each element \emph{i.e.}, the element size, yielding a strong and weak scaling analysis. 
 Throughout this work the terms sub-domain and element are used interchangeably to refer to the coupled problems within a hybridized problem. 
 
