@@ -20,7 +20,7 @@ In a shared memory context this independence allows problems to be computed that
 %
 %
 %
-Conventionally, this has lent hybridization the reputation of being mostly a tool for coupling otherwise unwieldy problems together, and less an aspect of performance. 
+Conventionally, this has lent hybridization the reputation of being mostly a tool for coupling otherwise unwieldy problems together, and less a consideration of performance. 
 Either, a problem is too large to fit into memory and is Hybridized into smaller problems, or multiple problems that would otherwise be difficult to represent in a single domain is coupled via Hybridization.
 
 %
@@ -36,11 +36,25 @@ The flexibility of hybridization makes it a compelling choice for a computing la
 Each sub-domain in a Hybridized problem is solved independently, though several of the \emph{building blocks} needed to assemble a local problem can be shared between problems further reducing the computational complexity. 
 However, increasing the number of local problem has the effect of increasing the size of the global problem. 
 It follows that there should exist a trade off between the number of local problems and cost of computing the global system. 
+Numerical analysis commonly deals with the numerical accuracy of a problem, but rarely considers time-to-solution a property of problem. 
+Yet, there exists fundamental relationship between the scale and orientation of a computation and performance.
+
+
+%\begin{enumerate}[label=\textbf{\footnotesize RQ\arabic*.}]
+%	\item {Does varying the number of elements in a homogeneous hybridized problem improve time-to-solution (TTS) significantly?}
+%	\item {Is there an ideal number of elements for performance, and does it vary with other quantities like problem size or thread count?}
+%\end{enumerate}
+
+
+%What is currently lacking in our understanding of the hyrbidized FD and 
+%FE methods is the relationship between meshing and computational performance. Several authors have discussed numerical performance as it relates to meshing and
+%the order of the approximation of the PDE being solved \citep{}. However, the discussion of computation performance as it relates to meshing characteristics is limited. This may be in a large part due to the reality that methods that allow the local problems to be solves independent of global trace problem are relatively 
+%uncommon and specialized. 
 
 %
 % 
 %
-In this work we explvore that trade off in a shared-memory CPU-based problem. 
+In this work we explore that trade off in a shared-memory CPU-based problem. 
 We assemble a problem in hybridized SBP-SAT finite difference scheme, solving the 2-D Poisson equation, coupling multiple sub-domains with penalty terms analogous to Dirichlet boundary conditions \emph{i.e.}, numerical fluxes as given in finite elements, proportionally varying the volume points within each sub-domain as to fix the number of total volume points. 
 We implement this in {\color{red}PETSc} and view performance as a function of the number of volume points in each element \emph{i.e.}, the element size, yielding a strong and weak scaling analysis. 
 Throughout this work the terms sub-domain and element are used interchangeably to refer to the coupled problems within a hybridized problem. 

@@ -1,0 +1,279 @@
+%
+%
+%
+\noindent
+With the decomposed matrices given by Eq. \ref{eqn:finc}--\ref{eqn:fine}, and the analogous form for $\textbf{M}$, we avoid storing identical sub-matrices, which a typical sparse matrix format would not. 
+Additionally, where multiple operations utilize the same $\textbf{F}^i$ $\textbf{M}_i$, we only perform this operation once. 
+This holds for all sub-matrices of $\textbf{F}^\intercal$ as each $(\textbf{F}^\intercal)^i \equiv (\textbf{F}^i)^\intercal$.
+Such operations are found in computing the global, trace problem \emph{i.e.}, Eq. \ref{eqn:global_system_a}--\ref{eqn:global_system_c}.
+
+The benefit of this is now, each local system is computed as a series of smaller problems. 
+This decomposition strategy is characteristic of hyrbidized methods, and is the fundamental reason to utilize these methods, in particular for larger problems sizes within a shared-memory context \citep{kozdon2021hybridized, kolev2021efficient, fernandez2017hybridized}. 
+
+\begin{figure}
+	\centering
+	\input{./figure/block_diagram}
+	\caption{A visualization of the non-zero pattern of the matrix operator of a 3-by-3 instance of the hybrid problem specified 
+	in \eqnref{eqn:hybrid_system}.}
+	\label{fig:block_diagram}
+\end{figure}
+
+%
+%
+%
+\subsubsection{Complexity of the trace system} 
+
+The hybrid formulation permits us to compute much larger problems with less memory and fewer reads, especially if the problem is mostly homogeneous.
+This is of particular interest as the 3 significant computations used in computing this problem \emph{i.e.}, MatMul, SpMV, and linear solve via direct solve, are often memory-bound operations. 
+Additionally, we reduce the computational complexity of solving the system by instead solving several smaller systems. 
+In both cases this allows us to express 
+the equations (\ref{eqn:global_system_a}--\ref{eqn:global_system_c}, 
+\ref{eqn:local_system}) as a concatenation of decomposed, smaller problems.
+
+To evaluate this the performance characteristics we fix the global number of volume points, $\bar{n}^2$, and vary the number of elements, to understand if there exists an optimal trade-off between the size of the decomposed matrices and quantity of computations derived from the decomposed matrices.
+
+
+%
+%
+%
+\subsubsection{Computing the trace inverse product}
+
+%
+%
+%
+\noindent
+In our implementation, the product $\textbf{M}^{-1}\textbf{F}$ in \eqnref{eqn:global_system_a} is computed from a series a series of solves, storing $\textbf{F}$ as a vector of vectors to compute $\textbf{M}^{-1}\textbf{F}$. 
+That is, for each directional $\textbf{F}^k$ boundary we store a list of $n$ vectors
+\begin{equation}
+	\textbf{F}^k = \left[\textbf{f}^k_1 \cdots \textbf{f}^k_n\right] 
+	\in \mathbb{R}^{n \times n^2}.
+\end{equation} 
+\noindent
+Here, each vector $\textbf{f}^k_i$ is implemented as a PetscVector object.
+This is in contrast to storing $\textbf{F}$ as a sparse matrix, and is necessary for the computation of $\textbf{M}^{-1}\textbf{F}$ from the local 
+matrices of $\textbf{M}$, stored similarly as
+\begin{equation}
+	\textbf{M} = \left\{\textbf{M}_1 \cdots \textbf{M}_p\right\} \in 
+	\mathbb{R}^{\ell^2 n^2 \times \ell^2 n^2}, p \leq \ell^2.
+\end{equation} 
+\noindent 
+Where $p$ denotes the number of unique local matrix operators in 
+$\textbf{M}$. 
+
+%
+%
+%
+With this we compute the intermediate result $\textbf{M}^{-1}\textbf{F}$, performing a linear solve of every unique local matrix operator, and every vector of every directional boundary coefficient matrix 
+\begin{equation}
+	\text{solve}(\textbf{M}_{i}, \textbf{F}^{k}_j) \text{  for }
+	\begin{array}{l}
+		0 < i \leq p, \\
+		0 < j \leq n, \\
+		0 < k \leq 4. \\ 
+	\end{array}
+	\label{eqn:mfsolves}
+\end{equation}
+\noindent
+This result has a similar non-zero pattern as $\textbf{F}$, following the same symbolic block structure. 
+In our implementation we solve this system through direct solvers made available through PETSc. 
+
+%
+%
+%
+\begin{aside}
+	In the homogeneous Poisson equation in \eqnref{eqn:problem_desc} we have 
+	\begin{equation}
+		p = \begin{cases}
+		    \ell &  0 \leq \ell < 3 \\ 
+			3 &  3 \leq \ell \\ 
+		\end{cases}.
+	\end{equation} 
+	\noindent 
+	When $p = 3$ we have one unique $\textbf{M}_i$ for the elements along the top Neumann boundaries, the bottom Neumann boundaries, and the interior elements. 
+	Since $p$ is constant when $\ell \geq 3$, increasing the number of elements, $\ell^2$ decreases the number of solves in \eqnref{eqn:mfsolves}, as well as the size of each solve, for a constant global volume, $\bar{n}^2$. 
+\end{aside}
+
+%
+%
+%
+\noindent
+The number of solves we compute for $\textbf{M}^{-1}\textbf{F}^\intercal$ is then $p \times 3 \times n$.
+Thus the total FLOPS we use to compute elements of size $n^2 \times n^2$ using forwards/backwards substitution is 
+\begin{equation}
+	\text{FLOPS}(\textbf{M}^{-1}\textbf{F}^\intercal) = 24 (\bar{n}/\ell)^5.
+	\label{eqn:flops_mf}
+\end{equation}
+\noindent
+Since we fix the problem size $\bar{n}^2$, we write $n = \bar{n}/\ell$, allowing us to parameterize our model by the number of elements instead of the size of each element. 
+As $\bar{n}$ is constant, computing $\textbf{M}^{-1}\textbf{F}^\intercal$ will require proportionally fewer FLOPS as the number of elements increases.
+
+%
+%
+%
+\subsubsection{Computing the trace MatMul} 
+
+%
+%
+%
+The pattern of the $\textbf{F}$ matrix is determined by the interfaces since we compute the product of each intermediary result in $\textbf{M}^{-1} \textbf{F}$ with the $\textbf{F}^k$ interfaces that make a face in a given $\textbf{M}_i$. 
+This is illustrated by \figref{fig:block_diagram} where we see that each shaded row in $\textbf{F}$ corresponds to an interface in \figref{fig:volume_diagram}.
+Again, we write the number of interfaces in terms of the number of elements, $r = 2\ell^2 - 2\ell$. 
+The dimensions of $\symbf{\lambda}_\textbf{A}$ can then be written as 
+\begin{equation}
+	\symbf{\lambda}_\textbf{A} \in \mathbb{R}^{rn \times rn} \equiv \mathbb{R}^{2\bar{n}\ell - 2\bar{n} \times 2\bar{n}\ell - 2\bar{n}}. 
+\end{equation}
+%The non-zero structure of the matrix used to solve $\symbf{\lambda}$ in \eqnref{eqn:global_system_a} provides insight into the complexity the two operations in $\textbf{F}^{\intercal} \times \textbf{M}^{-1} \textbf{F}$. 
+%The memory needed to store the decomposed matrix consisting of $\textbf{M}$, $\textbf{F}$, $\textbf{F}^{\intercal}$, $\textbf{D}$ is minimally the size of each unique, decomposed sub-matrix. 
+%This is illustrated in \figref{fig:block_diagram}, as the $\textbf{F}$ and $\textbf{F}^{\intercal}$ matrices only contain 4 unique sub-matrices, $\textbf{F}^{1}$, $\textbf{F}^{2}$, $\textbf{F}^{3}$, and $\textbf{F}^{4}$. 
+%The uniqueness of $\textbf{M}$ is less obvious here, but by \figref{fig:volume_diagram} we see that there are only 3 unique local problems, one with a Neumann boundary on face 4, another with a Neumann boundary on face 3, and a final problem with a no Neumann boundary conditions.
+%Fixing the number of global volume points, $\bar{n}^2$, the number of local volume points per row, $n$, is given in terms of the number of elements per row, $n = \bar{n} / \ell$, and similarly 
+\noindent
+The number of non-zeros in the intermediary result $\textbf{F}^{\intercal}(\textbf{M}^{-1}\textbf{F})$ is given by
+\begin{subequations}
+\begin{equation}
+	n^2 \sum_{i=1}^{\ell^2} (\phi_i^2)
+	\label{eqn:nz_sum}
+\end{equation}
+where
+\begin{equation}
+	\textbf{F}^{\text{ind}} = \left[\textbf{f}^{\text{ind}}_1 \cdots \textbf{f}^{\text{ind}}_{\ell^2}\right] \in \mathbb{Z}^{\ell^2 \times r},
+\end{equation}
+\begin{equation}
+	\phi = \left[ \text{nnz}(\textbf{f}^{\text{ind}}_1) \cdots \text{nnz}(\textbf{f}^{\text{ind}}_{\ell^2}) \right] \in \mathbb{Z}^{\ell^2}, 
+\end{equation}
+\end{subequations}
+or, the sum of the square of the number of internal interfaces per element. 
+The additional constraints we place on this problem, that being the square orientation of elements, we can write $\phi$ as 
+\begin{equation}
+	\phi = \left[ \underbrace{2, 2, 2, 2}_{4}, \underbrace{3 \cdots 3}_{4\ell - 8}, \underbrace{4 \cdots 4}_{(\ell-2)^2} \right] \in \mathbb{Z}^{\ell^2}, 
+\end{equation}
+where $2\text{'s}$ denote the corner elements, $3\text{'s}$ denote the boundary elements, and $4\text{'s}$ denote the internal elements. 
+In \eqnref{eqn:nz_sum} we square each $\phi_i$ because $\textbf{F}^{\intercal}$ and  $\textbf{M}^{-1}\textbf{F}$ can both be derived from substitutions of $\textbf{F}^{\text{ind}}$, and the sum is multiplied by $n^2$ accounting for the additional dimension of each $\textbf{F}^k$. 
+
+%
+%
+%
+The ordering of the rows in $\textbf{F}^{\text{ind}}$ may not be equivalent in this case, but the final sum will be identical. 
+Throughout the rest of the problem this is not an issue if the ordering remains consistent. 
+
+%
+%
+%
+From the number of non-zeros in $\symbf{\lambda}_\textbf{A}$ we derive the total FLOPS to compute $\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F})$ as a $v^\intercal v$ product of every $n^2$ length row in each $(\textbf{F}^k)^{\intercal}$ and each $n^2$ length column in the intermediary matrices of $(\textbf{M}^{-1}\textbf{F})$.
+This is again, expressed as a function of the number of elements
+\begin{equation}
+	\text{FLOPS}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F})) = 2 (\bar{n}/\ell)^4 \sum_{i=1}^{\ell^2} (\phi_i^2).
+\end{equation}
+
+%
+%
+%
+\begin{figure}
+	{\centering 
+	\input{figure/fmft_ai}}
+	\caption{\textbf{The arithmetic intensity ($\text{FLOPs}/\text{byte}$) of $\textbf{F}^\intercal \times (\textbf{M}^{-1} \textbf{F})$.}}
+	\label{fig:ftmt_ai}
+\end{figure}
+
+\noindent
+Here, we can also discretely determine the minimum number of bytes needed by this operation. 
+That is, for ever $v^Tv$, we load two $n^2$ vectors resulting in 
+\begin{equation}
+	\text{BYTES}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F})) = 2 (\bar{n}/\ell)^2 \sum_{i=1}^{\ell^2} (\phi_i^2).
+\end{equation}
+\noindent 
+From this we derive the \emph{optimal} arithmetic intensity of this operation  
+\begin{equation}
+	\symbf{\beta}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F})) = \bar{n}^2 / \ell^2,
+\end{equation}
+\noindent
+which we plot as a function of the number of elements in \figref{fig:ftmt_ai}.
+
+
+%With this, we have the non-zero density of $\textbf{F}^{\intercal}\textbf{M}^{-1}\textbf{F}$ as a function of the number of elements per row 
+%\begin{equation}
+%	\begin{aligned}
+%	\text{nzd}(\ell) &= \frac{\bar{n}/\ell (16\ell^2 - 28\ell + 8)}{(2\bar{n}\ell - 2\bar{n})^2} \\
+%	&= \frac{4\ell^2 - 7\ell + 2}{\bar{n}\ell(\ell-1)^2}.
+%	\end{aligned}
+%\end{equation}
+
+%\begin{figure}
+%	{\centering
+%	%\begin{subfigure}{\columnwidth}
+%	%	\centering
+%	%	\input{figure/nz_density}
+%	%\end{subfigure}
+%	\begin{subfigure}{\columnwidth}
+%		\centering
+%		\input{figure/nonzeros}
+%	\end{subfigure}}
+%	\caption[The non-zero density of $\symbf{\lambda}_{\textbf{A}}$ 
+%	plotted as a function of the total number of elements.]{\textbf{The non-zeros 
+%	elements of $\symbf{\lambda}_{\textbf{A}}$ plotted as a function of 
+%	the total number of elements.}}
+%	\label{fig:nz_density} 
+%\end{figure}
+
+%               TODO: mention preconditioning
+%\noindent
+%This is plotted in \figref{fig:nz_density} for several values of $\bar{n}$ alongside of a plot of the quantity of non-zeros. Here we see that when the $\bar{n}^2$ is fixed, the size of the trace system is governed by a 3rd degree polynomial while the quantity of non-zeros is 2nd order, resulting in different non-zero densities depending on the $\ell$. 
+%This is significant as performance often depends on the choice of solvers and preconditioners and that are well suited to the size of non-zero pattern of the problem \citep{bollhofer2020state}. % todo: find more sources here 
+
+%In our implementation each non-zero corresponds to a vector dot product between a non-zero row of the sub-matrices of $\textbf{F}^{\intercal}$ and a decomposed result of computing  $\textbf{M}^{-1}\textbf{F}$
+
+%
+%
+%
+\subsubsection{Computing the trace SpMV}
+
+%
+%
+%
+We utilize two potentially expensive kernels to compute $\symbf{\lambda}_{\textbf{b}}$ in \eqnref{eqn:global_system_c}, those being a matrix-vector linear solve, similar to the matrix-matrix solve in \eqnref{eqn:global_system_b}, and an SpMV. 
+The complexity of this is a solve is three polynomial orders lower than \eqnref{eqn:flops_mf} at
+\begin{equation}
+	\text{FLOPS}(\textbf{M}^{-1}\bar{\textbf{g}}) = \bar{n}^4/\ell^2.
+\end{equation}
+\noindent
+This is evident as $\bar{\textbf{g}}$ is a length $\bar{n}^2$ vector, not a matrix like $\textbf{F}$; as $\bar{\textbf{g}}$ is a unique vector for every $\textbf{M}_i$ we compute $\ell^2$ solves instead of $p \times 3 \times n$ solves.
+
+%
+%
+%
+To solve the SpMV we once again utilize the block diagonal structure of the problem to compute $\textbf{F}^\intercal \times (\textbf{M}^{-1}\bar{\textbf{g}})$. 
+We compute each component solution from each $\textbf{F}^k$ to the appropriate intermediate vectors of $\textbf{M}^{-1}\bar{\textbf{g}}$.
+FLOPs are totaled through a sum similar to \eqnref{eqn:nz_sum}, but only multiplied by $n$, as this is a matrix-vector operation.  
+The total FLOPS for to compute this operation is then 
+\begin{equation}
+	\text{FLOPS}(\textbf{M}^{-1}\bar{\textbf{g}}) = 2 (\bar{n}/\ell)^2 \sum_{i=1}^{\ell^2} (\text{NON ZEROS IN F BLOCK}) (\phi_i^2).
+\end{equation}
+
+%
+%
+%
+\subsubsection{Computing the trace solve}
+
+%
+%
+%
+To solve $\symbf{\lambda}_{\textbf{A}}$ we use a direct Cholesky solver provided through PETSc. 
+Here the total FLOPS to solve a $2\bar{n}\ell - 2\bar{n} \times 2\bar{n}\ell - 2\bar{n}$ system is 
+
+\begin{equation}
+	\text{FLOPS}(\symbf{\lambda}_{\textbf{A}}^{-1}\symbf{\lambda}_{\textbf{b}}) = 2 (2\bar{n}\ell - 2\bar{n})^2.
+\end{equation}
+
+%\noindent
+%From \eqnref{eqn:nz_sum} we have the total number of non-zeros in the intermediary matrix $\textbf{F}^\intercal \textbf{M}^{-1} \textbf{F}$ which is closely representative of $\symbf{\lambda}_{\textbf{A}}$, only lacking entries from $\textbf{D}$.  
+%$\textbf{D}$ however is single diagonal and all entries of $\textbf{D}$ are already non-zero in $\textbf{F}^\intercal \textbf{M}^{-1} \textbf{F}$.
+%
+%\begin{equation}
+%	\text{MEMOPS}(\symbf{\lambda}_{\textbf{A}}^{-1}\symbf{\lambda}_{\textbf{b}}s) = n + n^2 \sum_{i=1}^{\ell^2} (\phi_i^2)
+%\end{equation}
+
+
+
+
+
+

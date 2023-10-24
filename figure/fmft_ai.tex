@@ -1,0 +1,21 @@
+\pgfplotsset{compat=newest, width=\columnwidth}
+\begin{tikzpicture}
+\begin{axis}[
+  /pgf/number format/1000 sep={\,},
+  height=2in,
+    xlabel={\small $\ell^2$ (total elements)},
+  xtick={9, 144, 484, 1024},
+  %ymode=log,
+  ylabel={\small $\text{FLOP} / \text{byte}$},
+  legend style={
+    font=\footnotesize,
+    at={(0.975, 0.05)},
+    anchor=south east},
+  legend cell align={left}]
+    \addplot[
+        select coords between index={1}{2500},
+        color=black,smooth,thick] 
+        table[col sep=comma,header=false,
+        x index=0,y index=1] {data/ai_fmft};
+\end{axis}
+\end{tikzpicture}

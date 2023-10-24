@@ -1,0 +1,13 @@
+{\color{red} TODO}
+%Sparse linear systems are conventionally memory-bound problems so techniques that approach greater performance by eliminating redundant data in the problem or restating the problem with a lesser memory footprint. 
+%This work focuses on direct solver methods such as LU-factorization or Cholesky decomposition.
+%Direct methods decompose the matrix of a linear system into component factor matrices that can be used to directly compute a solution. 
+
+%\subsection*{Iterative methods}
+%In contrast, particularly large linear systems, \emph{krylov subspace methods}, also called iterative methods, compute an approximate solution through gradient descent. 
+%Several techniques such as multi-grid preconditioning, matrix-free, and partial assembly reduce memory pressure and make these highly competitive methods, especially on GPUs.
+
+%\subsection*{Meshing}
+%The choice of mesh is rarely viewed as an aspect of performance. 
+
+%Certain numerical PDE frameworks can be readily scaled to a larger problem by constructing a different mesh over the domain of the problem. Meshing is typically studied w.r.t. it's effects on of accuracy of the results generated, as meshes with low-quality elements can lead to numerical errors in the solution \citep{sharma2021overset, dervieux2003theoretical}. Mesh refinement techniques emerge here, providing methods to algorithmically improve the accuracy of the solution by regenerating the mesh where low-quality elements are found \citep{berger1984adaptive, verfurth1994posteriori, geiersbach2020stochastic, bespalov2022error}. 

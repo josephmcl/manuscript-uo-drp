@@ -89,12 +89,23 @@ A similar structure exists for $\textbf{F}$ and $\textbf{F}^{\intercal}$, though
 %
 %
 %
+\begin{aside}
+    For this work we consider a specialization of the problem where both the mesh and each element are square. 
+    Here, the total number of elements, $\ell^2$, is the square of the number of elements on any face of the \emph{global} domain, $\ell$. 
+    Additionally, each the number of volume points in each element, $n^2$, is the square of the number of volume points along any face $n$. 
+    Finally, there are only 4 unique interfaces, 1 for each interior face of an element.
+\end{aside}
+
+%
+%
+%
 \noindent
 In a 3-by-3 example of the problem we reconstruct $\textbf{F}$ from the representational matrix, $\textbf{F}^{\text{ind}}$, and the set of unique $\textbf{F}^{i}$ sub-matrices, substituting the appropriate sub-matrix in place of the integer value, \emph{i.e.},
 
 \begin{subequations}
 \begin{equation}
 	\textbf{F} = \textbf{F}^{\text{ind}}\left[i/\textbf{F}^{i}\right] \text{ where } i \neq 0,
+    \label{eqn:finc}
 \end{equation}
 \begin{equation}
 	{\footnotesize
@@ -125,6 +136,7 @@ In a 3-by-3 example of the problem we reconstruct $\textbf{F}$ from the represen
 \begin{equation}
 	\left\{\textbf{F}^{1},\textbf{F}^{2},\textbf{F}^{3},\textbf{F}^{4}
 	\right\}.
+    \label{eqn:fine}
 \end{equation}
 \end{subequations}
 
@@ -132,12 +144,3 @@ In a 3-by-3 example of the problem we reconstruct $\textbf{F}$ from the represen
 In this problem there are only 4 unique sub-matrices because the mesh of elements consists of identically sized 4-sided elements. 
 The location of entries in each row of \eqnref{eqn:find} correspond to the orientation of interfaces along a given element seen in \figref{fig:volume_diagram}, \emph{e.g.}, element 2 has interfaces 1, 2, and 8, corresponding to non-zeros in the identical columns in row 2 of $\textbf{F}^{\text{ind}}$.
 
-%
-%
-%
-%\begin{aside}
-    %For this paper we consider a specialization of the problem where the mesh and each element are square. 
-    %Here, the total number of elements, $\ell^2$, is the square of the number of elements on any face of the \emph{global} domain, $\ell$. 
-    %Additionally, each the number of volume points in each element, $n^2$, is the square of the number of volume points along any face $n$. 
-    %Finally, there are only 4 unique interfaces, 1 for each interior face of an element.
-%\end{aside}
