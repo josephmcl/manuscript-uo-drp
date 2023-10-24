@@ -1,0 +1,45 @@
+\pgfplotsset{compat=newest, width=\columnwidth}
+\begin{tikzpicture}
+\begin{axis}[
+  /pgf/number format/1000 sep={\,},
+  height=2in,
+  xlabel={\small $\ell^2$ (total elements)},
+  %symbolic x coords = {16, 25, 36, 49, 64, 100, 144, 196, 225, 400, 441, 576, 784, 900, 1225, 1600},
+  xtick={100, 600, 1100, 1600},
+  %ymode=log,
+  ylabel={\small Runtime (s)},
+  legend style={
+    font=\footnotesize,
+    at={(0.05, 0.975)},
+    anchor=north west},
+  legend cell align={left}]
+    \addplot[
+        select coords between index={1}{2500},
+        color=black,smooth,thick] 
+        table[col sep=comma,header=false,
+        x index=0,y index=1] {data/ftmf_bytes_sec};
+    \addlegendentry{Performance model}
+    \addplot[
+      only marks,
+      mark=triangle,
+      color=blue] coordinates {
+        (9, 441.321048)
+        (16, 290.10575)
+        (25, 199.676772)
+        (36, 141.542836)
+        (49, 109.624197)
+        (64, 87.516978)
+        (100, 59.597739)
+        (144, 43.86835)                
+        (196, 34.223977) 
+        (225, 31.043727) 
+        (400, 24.364813) 
+        (441, 24.756918) 
+        (576, 30.185676) 
+        (784, 51.117228) 
+        (900, 70.110809) 
+        (1225, 158.006306)
+        (1600, 338.225247)};
+    \addlegendentry{Experimental results}
+\end{axis}
+\end{tikzpicture}

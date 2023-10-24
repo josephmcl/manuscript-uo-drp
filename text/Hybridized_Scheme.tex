@@ -35,22 +35,22 @@ This is solved in two parts: the global problem,
 %
 \begin{subequations}
 \begin{equation}
-\symbf{\lambda}_{\textbf{A}} \coloneqq \gbd - \textbf{F}^{\intercal} \text{solve}(\textbf{M}, \bar{\textbf{g}}),
+\symbf{\lambda}_{\textbf{A}} = \textbf{D} - \textbf{F}^{\intercal} \textbf{M}^{-1} \textbf{F},
 \label{eqn:global_system_a}
 \end{equation}
 \begin{equation}
-\symbf{\lambda}_{\textbf{b}} \coloneqq \textbf{D} - \textbf{F}^{\intercal} \text{solve}(\textbf{M}, \textbf{F}),
+\symbf{\lambda}_{\textbf{b}} = \gbd - \textbf{F}^{\intercal} \textbf{M}^{-1} \bar{\textbf{g}}, 
 \label{eqn:global_system_b}
 \end{equation}
 \begin{equation}
-\symbf{\lambda} \coloneqq \text{solve}(\symbf{\lambda}_{\textbf{A}}, \symbf{\lambda}_{\textbf{b}}),
+\symbf{\lambda} = \symbf{\lambda}_{\textbf{A}}^{-1} \symbf{\lambda}_{\textbf{b}},
 \label{eqn:global_system_c}
 \end{equation}
 \end{subequations}
 \noindent
 and the local problem,
 \begin{equation} 
-\textbf{u} \coloneqq \text{solve}(\textbf{M}, (\bar{\textbf{g}} - \textbf{F} \times \symbf{\lambda})).
+\textbf{u} = \textbf{M}^{-1} (\bar{\textbf{g}} - \textbf{F} \symbf{\lambda}).
 \label{eqn:local_system}
 \end{equation}
 
@@ -76,7 +76,7 @@ The boundary coefficients are factored out to $\textbf{F}$ and $\textbf{F}^{\int
 %
 \noindent
 This permits us \textbf{a)} to compute much larger problems with less memory, especially if the problem is largely homogeneous, and \textbf{b)} to reduce the computational complexity of solving the system by instead solving several smaller systems. 
-In both cases this allows us express the equations (\ref{eqn:global_system_a}--\ref{eqn:global_system_c}, \ref{eqn:local_system}) as a concatenation of smaller problems. 
+In both cases this allows us express the Eq. (\ref{eqn:global_system_a}--\ref{eqn:global_system_c}, \ref{eqn:local_system}) as a concatenation of smaller problems. 
 
 %
 %
@@ -92,7 +92,7 @@ A similar structure exists for $\textbf{F}$ and $\textbf{F}^{\intercal}$, though
 \begin{aside}
     For this work we consider a specialization of the problem where both the mesh and each element are square. 
     Here, the total number of elements, $\ell^2$, is the square of the number of elements on any face of the \emph{global} domain, $\ell$. 
-    Additionally, each the number of volume points in each element, $n^2$, is the square of the number of volume points along any face $n$. 
+    Additionally, the number of volume points in each element, $n^2$, is the square of the number of volume points along any face $n$. 
     Finally, there are only 4 unique interfaces, 1 for each interior face of an element.
 \end{aside}
 

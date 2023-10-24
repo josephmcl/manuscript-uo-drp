@@ -225,7 +225,7 @@ which we plot as a function of the number of elements in \figref{fig:ftmt_ai}.
 %
 %
 %
-\subsubsection{Computing the trace SpMV}
+\subsubsection{Computing the trace vector}
 
 %
 %
@@ -244,9 +244,14 @@ This is evident as $\bar{\textbf{g}}$ is a length $\bar{n}^2$ vector, not a matr
 To solve the SpMV we once again utilize the block diagonal structure of the problem to compute $\textbf{F}^\intercal \times (\textbf{M}^{-1}\bar{\textbf{g}})$. 
 We compute each component solution from each $\textbf{F}^k$ to the appropriate intermediate vectors of $\textbf{M}^{-1}\bar{\textbf{g}}$.
 FLOPs are totaled through a sum similar to \eqnref{eqn:nz_sum}, but only multiplied by $n$, as this is a matrix-vector operation.  
-The total FLOPS for to compute this operation is then 
+The total FLOPs to compute this operation is then 
 \begin{equation}
-	\text{FLOPS}(\textbf{M}^{-1}\bar{\textbf{g}}) = 2 (\bar{n}/\ell)^2 \sum_{i=1}^{\ell^2} (\text{NON ZEROS IN F BLOCK}) (\phi_i^2).
+	\text{FLOPS}(\textbf{F}^\intercal \times (\textbf{M}^{-1}\bar{\textbf{g}})) = 12(\bar{n}/\ell) \sum_{i=1}^{\ell^2} (\phi_i^2).
+\end{equation}
+This appears as a 1st order polynomial because each $\textbf{F}^k$ contains $6(\bar{n}/\ell)$ entries is used only once for each entry in $\textbf{F}^{\text{ind}}$.
+We also then have the number of bytes needed by SpMV in this instance
+\begin{equation}
+	\text{BYTES}(\textbf{F}^\intercal \times (\textbf{M}^{-1}\bar{\textbf{g}})) = 96(\bar{n}/\ell) \sum_{i=1}^{\ell^2} (\phi_i^2).
 \end{equation}
 
 %
@@ -258,10 +263,24 @@ The total FLOPS for to compute this operation is then
 %
 %
 To solve $\symbf{\lambda}_{\textbf{A}}$ we use a direct Cholesky solver provided through PETSc. 
-Here the total FLOPS to solve a $2\bar{n}\ell - 2\bar{n} \times 2\bar{n}\ell - 2\bar{n}$ system is 
+Here the total FLOPs to solve a $2\bar{n}\ell - 2\bar{n} \times 2\bar{n}\ell - 2\bar{n}$ system is 
 
 \begin{equation}
-	\text{FLOPS}(\symbf{\lambda}_{\textbf{A}}^{-1}\symbf{\lambda}_{\textbf{b}}) = 2 (2\bar{n}\ell - 2\bar{n})^2.
+	\text{FLOPS}(\symbf{\lambda}_{\textbf{A}}^{-1}\symbf{\lambda}_{\textbf{b}}) = 2  (2\bar{n}\ell - 2\bar{n})^2.
+\end{equation}
+
+%
+%
+%
+\subsubsection{Computing the local solves}
+
+%
+%
+%
+Finally, to compute the solution via the local systems in PETSc's Cholesky solver in \eqnref{eqn:local_system} we have $\ell$, $n^2 \times n^2$ component matrices of $\textbf{M}$, by $\ell$ sub-sections of the vector $(\bar{\textbf{g}} - \textbf{F} \symbf{\lambda})$. 
+The total FLOPs are then 
+\begin{equation}
+	\text{FLOPS}(\textbf{M}^{-1}(\bar{\textbf{g}} - \textbf{F} \symbf{\lambda})) = 2 (\bar{n}^4/\ell^5).
 \end{equation}
 
 %\noindent

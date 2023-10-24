@@ -6,31 +6,81 @@
 %
 %
 %
+\input{./figure/tts}
+
+%
+%
+%
 In this section we complement our theoretical estimates with the runtimes of a parallel implementation of our numerical system. 
-We fix the size of the problem to 705600 volume points and vary the quantity and size of elements proportionally. 
-Each hybridized system has more than 705600 points as the $\mathbf{F}$ and $\mathbf{F}^{\intercal}$ factors increase the size of the system as we add elements.
+We fix the size of the problem to $\bar{n}^2$ = 705\,600 volume points and vary the quantity and size of elements proportionally. 
+Each hybridized system has more than 705\,600 points as the $\mathbf{F}$ and $\mathbf{F}^{\intercal}$ factors increase the size of the system as we add elements.
 Our implementation was developed largely in PETSc and was tested on the Talapas cluster using an Intel Xeon E5-2690 v4 CPU.
 
-\input{./figure/tts}
- 
+
 The most performant PDE solvers for large-scale problems are increasingly based on GPUs, but often do so by constraining properties of system, such as enforcing FPD-ness in the case of iterative solvers. We show that the hybrid SBP-SAT method can be compute similarly large problems with fewer constraints on the CPU.  
 
+%
+%
+%
 \subsection{Evaluation}
-Three computational kernels comprise the majority of the runtime, SpMV via Eq. \eqref{}, MatMult via \eqref{}, and $\symbf{\lambda}$ linear solve via Eq. \eqref{}.
 
-In our problem, the matrix-matrix solve in the global system takes a relatively small amount of time because we only have three unique matrices to solve. 
-As we increase the number of elements, we decrease the size of these solves, resulting in it comprising an increasingly minimal portion of the overall runtime. 
-In more heterogeneous systems this operation will consist of a marginally larger portion of the overall runtime.
-Figure \ref{} the 
+%
+%
+%
+We ran several different choices of $\ell$ that evenly divide $\bar{n}$. Consistently, we found the best runtime at $\ell^2 = 100$. 
+A full table of the runtime separated by thread count and element count is given in \figref{fig:tts_total}.
 
+%
+%
+%
+Three computational kernels comprise the majority of the runtime, SpMV from \eqnref{eqn:global_system_b}, MatMul via \eqref{eqn:global_system_a}, and $\symbf{\lambda}$ linear solve via Eq. \eqref{eqn:global_system_c}.
+The remaining kernels average $<0.6\%$ of the compute time when run on a single thread. 
+The three major kernels are plotted in \figref{fig:runtime_comps}.
 
-
+%
+%
+%
 \input{./figure/runtime_components}
 
+%
+%
+%
+In this problem, the matrix-matrix solve in the global system takes a relatively small amount of time because we only have three unique matrices to solve. 
+As we increase the number of elements, we decrease the size of these solves, resulting in it comprising an increasingly minimal portion of the overall runtime. 
+In more heterogeneous systems this operation will consist of a marginally larger portion of the overall runtime.
+Thus, the worst performance of this kernel was found at $\ell = 3$ where it took $17.7 \text{ s}$ to complete.
 
-\subsection{MatMult Analysis}
+%
+%
+%
+\subsection{MatMul Analysis}
 
+%
+%
+%
 \input{./figure/matmult_flopspers}
+
+%
+%
+%
+Out of three kernels that comprise the majority of the runtime we see the most variability in the MatMul operation. 
+The operation is implemented in similar manner to batch GEMM methods, but because we store our intermediate results at vectors we compute a batch $v^\intercal v$ instead. 
+
+Our results for all thread counts suggest an optimal choice of $\ell$ to minimize runtime. 
+Similar to the matrix-matrix solve, the greater runtime on the left hand side of the MatMul plot in \figref{fig:runtime_comps} is explained by the total number of FLOPs as a function of $\ell$. 
+Totals FLOPs decrease for this kernel at a rate of $1/\ell^4 $
+
+%
+%
+%
+\begin{figure}
+	{\centering 
+	\input{figure/ftmf_comp_1}}
+	\caption{\textbf{Matmul performance models (}$\text{s}/\ell^2$\textbf{) plotted against single-threaded results.} The FLOPs model plots total FLOPs / peak FLOPs while the bytes model plots peak (FLOPs / $\symbf{\beta}$) / peak memory bandwidth. 
+	}
+	\label{fig:ftmf_comp_1}
+\end{figure}
+
 
 %\begin{mcfigure}
 %	\centering

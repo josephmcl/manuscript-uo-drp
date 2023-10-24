@@ -8,7 +8,7 @@
             at={(0.55, 1)},
             anchor=north,legend columns=-1},
         height=2.5in,
-        width=3.375in,
+        width=\columnwidth,
         axis x line*=bottom,
         axis y line*=left,
         symbolic x coords = {9, 16, 25, 36, 49, 64, 100, 144, 196, 225, 400, 441, 576, 784, 900, 1225, 1600},
@@ -171,5 +171,6 @@
 \end{subfigure}
 \caption{Runtime of routines that significantly contribute to the overall
     runtime for various element configurations. 1 thread (top) and 28 
-    threads (bottom). }
+    threads (bottom).}
+\label{fig:runtime_comps}
 \end{figure}
