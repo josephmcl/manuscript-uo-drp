@@ -1,82 +1,84 @@
 %
 %
 %
-\section{NUMERICAL TESTS IN PARALLEL}
+\section{EXPERIMENTS}
 
 %
 %
 %
-\input{./figure/tts}
+In this section we complement our analysis with performance results of our parallel implementation of the 2D hybridized SBP-SAT problem.
+We developed code used to solve this system in C++ and utilize the PETSc library to implement the linear algebra operations utilized throughout. 
+All linear systems are solved using the direct LU solver provided by PETSc.
+We implemented thread parallel routines in OpenMP \citep{openmp08}, utilizing the parallelism made available through hybridization.
+Our code ran on the University of Oregon's Talapas supercomputing cluster on an Intel Xeon E5-2690 v4 CPU. 
+Profiling information including cache accesses, writes, and flop counts were sought using the PAPI profiler \citep{jagode2019papi}.
 
 %
 %
 %
-In this section we complement our theoretical estimates with the runtimes of a parallel implementation of our numerical system. 
-We fix the size of the problem to $\bar{n}^2$ = 705\,600 volume points and vary the quantity and size of elements proportionally. 
-Each hybridized system has more than 705\,600 points as the $\mathbf{F}$ and $\mathbf{F}^{\intercal}$ factors increase the size of the system as we add elements.
-Our implementation was developed largely in PETSc and was tested on the Talapas cluster using an Intel Xeon E5-2690 v4 CPU.
+\subsection{Strong scaling}
+\input{text/Scaling_Analysis.tex}
 
 
-The most performant PDE solvers for large-scale problems are increasingly based on GPUs, but often do so by constraining properties of system, such as enforcing FPD-ness in the case of iterative solvers. We show that the hybrid SBP-SAT method can be compute similarly large problems with fewer constraints on the CPU.  
+\subsection{SpMV analysis}
+The SpMV kernel is similarly batched to compute $\textbf{F}^\intercal \times (\textbf{M}^{-1}_{i} \textbf{\bar{g}})$ for each element. 
+Unlike MatMul, each intermediate vector in $\textbf{M}^{-1}_{i} \textbf{\bar{g}}$ is unique since $\textbf{\bar{g}}$ is unique. 
+Additionally, we compute proportionally fewer batches of $n^2 \times n$ SpMV than MatMul, and write out to significantly fewer memory locations. 
+
 
 %
 %
 %
-\subsection{Evaluation}
-
-%
-%
-%
-We ran several different choices of $\ell$ that evenly divide $\bar{n}$. Consistently, we found the best runtime at $\ell^2 = 100$. 
-A full table of the runtime separated by thread count and element count is given in \figref{fig:tts_total}.
+\subsection{Memory behavior}
 
 %
 %
 %
-Three computational kernels comprise the majority of the runtime, SpMV from \eqnref{eqn:global_system_b}, MatMul via \eqref{eqn:global_system_a}, and $\symbf{\lambda}$ linear solve via Eq. \eqref{eqn:global_system_c}.
-The remaining kernels average $<0.6\%$ of the compute time when run on a single thread. 
-The three major kernels are plotted in \figref{fig:runtime_comps}.
+To investigate the decreasing performance of the MatMul kernel we chose pairs of $\bar{n}$ and $\ell$ with similar total flops for the MatMul kernel.
+These problems averaged $1.32\mathrm{e}11$ flops with a coefficient of variation of $2.3\mathrm{e}{-3}$.
+Though the flops between each problem varies insignificantly, and the bytes loa\-ded \emph{decrease}, the number of entries in $\symbf{\lambda_{\textbf{A}}}$ --- and hence the number of bytes written \emph{increases}. 
+This is illustrated in on the left of \figref{fig:mem_exp_b}; this also plots the measured number of L3 cache writes in MatMul kernel on the right. 
+The number of L3 writes grows proportional to the number of entries in $\symbf{\lambda_{\textbf{A}}}$.
+The number of entries are approximately $80\times$ greater than the number of L3 writes. This is slightly less than the number of 8 byte doubles that fit into a 128 byte cache line.
 
 %
 %
 %
-\input{./figure/runtime_components}
+\begin{figure}[h]
+	\input{./figure/mem_exp_2.tex}
+	\caption{
+	    The amount of non-zero elements in $\symbf{\lambda_{\textbf{A}}}$ for a set of problems with similar flop profiles (left) and the number of L3 cache data writes measured with PAPI (right). 
+	    While the total flops are similar, the size and number of entries in $\symbf{\lambda_{\textbf{A}}}$ continues to grow. 
+	    }
+    \label{fig:mem_exp_b}
+\end{figure}
+
+\noindent
+The runtime of MatMul SpMV, and the LU factorization of $\symbf{\lambda}_{\textbf{A}}$ all increase in runtime, even though the flops remaining minimally changed and the bytes loaded decrease. 
+We illustrate this in \figref{fig:mem_exp_a}. 
+The growth of the $\symbf{\lambda}_{\textbf{A}}$ factorization ide to the additional non-zero entries increasing its complexity.
+For the other two operations this suggests that the greatest impact to runtime at this scale is the number of writes to $\symbf{\lambda}_{\textbf{A}}$, \emph{i.e.}, that these operations are becoming write bound.
+This is affirmed by \figref{fig:mmwm}, as additional the sum of L3 write and misses in the MatMul kernel as we increase the number of elements while fixing grid points.  
+
+
+\begin{figure}[h]
+	\input{./figure/mem_exp_1.tex}
+	\caption{
+	    The runtime of three expensive operations using 28 threads on several problem sizes with a similar total flops. 
+	    Though the total flops remain essentially the same, the runtime increases for all three kernels.
+	    }
+	\label{fig:mem_exp_a}
+\end{figure}
+
+
 
 %
 %
 %
-In this problem, the matrix-matrix solve in the global system takes a relatively small amount of time because we only have three unique matrices to solve. 
-As we increase the number of elements, we decrease the size of these solves, resulting in it comprising an increasingly minimal portion of the overall runtime. 
-In more heterogeneous systems this operation will consist of a marginally larger portion of the overall runtime.
-Thus, the worst performance of this kernel was found at $\ell = 3$ where it took $17.7 \text{ s}$ to complete.
-
-%
-%
-%
-\subsection{MatMul Analysis}
-
-%
-%
-%
-\input{./figure/matmult_flopspers}
-
-%
-%
-%
-Out of three kernels that comprise the majority of the runtime we see the most variability in the MatMul operation. 
-The operation is implemented in similar manner to batch GEMM methods, but because we store our intermediate results at vectors we compute a batch $v^\intercal v$ instead. 
-
-Our results for all thread counts suggest an optimal choice of $\ell$ to minimize runtime. 
-Similar to the matrix-matrix solve, the greater runtime on the left hand side of the MatMul plot in \figref{fig:runtime_comps} is explained by the total number of FLOPs as a function of $\ell$. 
-Totals FLOPs decrease for this kernel at a rate of $1/\ell^4 $
-
-%
-%
-%
-\begin{figure}
+\begin{figure}[!b]
 	{\centering 
 	\input{figure/ftmf_comp_1}}
-	\caption{\textbf{Matmul performance models (}$\text{s}/\ell^2$\textbf{) plotted against single-threaded results.} The FLOPs model plots total FLOPs / peak FLOPs while the bytes model plots peak (FLOPs / $\symbf{\beta}$) / peak memory bandwidth. 
+	\caption{\textbf{Matmul performance models (}$\text{s}/\ell^2$\textbf{) plotted against single-threaded results.} The FLOPs model plots total FLOPs / peak FLOPs while the memory model plots () . 
 	}
 	\label{fig:ftmf_comp_1}
 \end{figure}
@@ -88,9 +90,9 @@ Totals FLOPs decrease for this kernel at a rate of $1/\ell^4 $
 %	\captionof{figure}{Total FLOPs used to compute the factorized matrix multiplication in $\textbf{F}^{\intercal} \times (\textbf{M}^{-1} \textbf{F})$ over the number of elements for a constant problem size, $N = 705\kern 0.25em 600$. FLOPs decrease as the size of the constituent inner products decrease in relation to the size of each element.}
 %\end{mcfigure}
 
-\subsection{SpMV Analysis}
 
-\subsection{Delta Solve Analysis}
+
+%\subsection{Delta Solve Analysis}
 
 %\begin{mcfigure}
 %	\centering

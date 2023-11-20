@@ -1,0 +1,43 @@
+\centering
+\begin{tikzpicture}
+  \begin{groupplot}[group style={
+        vertical sep=2.5cm,
+        horizontal sep=1.0cm,
+        group size=2 by 1},
+        width = {0.55\columnwidth},
+        height = {0.4\columnwidth},
+        xtick = {81, 196, 400},
+        axis x line*=bottom,
+        axis y line*=left
+        ]
+     \nextgroupplot[
+        legend to name={CommonLegend}, 
+            legend style = {
+                at={(0.55, 1)},
+                anchor = north,
+                legend columns = 1}]
+    \addplot[mark=o, color=black,
+            ytick = {10000000, 20000000},
+            ] coordinates {
+        (64, 7292200)
+        (81, 8332892) 
+        (100, 9370368)
+        (144, 11413376)
+        (196, 13484800)
+        (400, 19672672)};
+    \nextgroupplot[]
+    \addplot[mark=square, only marks,
+            ytick = {1000000, 2000000},
+            ] coordinates {
+        (64, 726220)
+        (81, 820642) 
+        (100, 981485)
+        (144, 1090082)
+        (196, 1480461)
+        (400, 2068669)};
+    \end{groupplot}
+    \node[anchor=south, rotate=90] (title-y) at ($(group c1r1.west)-(0.55,0cm)$) {\small Entries in $\symbf{\lambda_{\textbf{A}}}$};
+    \node[anchor=south, rotate=90] (title-y) at ($(group c2r1.west)-(0.45,0cm)$) {\small L3 writes to $\symbf{\lambda_{\textbf{A}}}$};
+    \node[anchor=north] (title-x) at ($(group c1r1.south)-(0,0.5cm)$) {\small Elements ($\ell^2$)};
+    \node[anchor=north] (title-x) at ($(group c2r1.south)-(0,0.5cm)$) {\small Elements ($\ell^2$)};
+\end{tikzpicture}

@@ -10,13 +10,15 @@ Such operations are found in computing the global, trace problem \emph{i.e.}, Eq
 The benefit of this is now, each local system is computed as a series of smaller problems. 
 This decomposition strategy is characteristic of hyrbidized methods, and is the fundamental reason to utilize these methods, in particular for larger problems sizes within a shared-memory context \citep{kozdon2021hybridized, kolev2021efficient, fernandez2017hybridized}. 
 
-\begin{figure}
+\begin{figure}[h]
 	\centering
 	\input{./figure/block_diagram}
 	\caption{A visualization of the non-zero pattern of the matrix operator of a 3-by-3 instance of the hybrid problem specified 
 	in \eqnref{eqn:hybrid_system}.}
 	\label{fig:block_diagram}
 \end{figure}
+
+
 
 %
 %
@@ -32,6 +34,12 @@ the equations (\ref{eqn:global_system_a}--\ref{eqn:global_system_c},
 
 To evaluate this the performance characteristics we fix the global number of volume points, $\bar{n}^2$, and vary the number of elements, to understand if there exists an optimal trade-off between the size of the decomposed matrices and quantity of computations derived from the decomposed matrices.
 
+\begin{figure}[h]
+	\centering
+	\input{./figure/lambda_diagram}
+	\caption{The growth of $\symbf{\lambda}_\textbf{A}$. For a constant number of grid points the number of non-zero entries in this matrix increases when increasing the number of elements.}
+	\label{fig:lambda_diagram}
+\end{figure}
 
 %
 %
@@ -121,6 +129,7 @@ Again, we write the number of interfaces in terms of the number of elements, $r 
 The dimensions of $\symbf{\lambda}_\textbf{A}$ can then be written as 
 \begin{equation}
 	\symbf{\lambda}_\textbf{A} \in \mathbb{R}^{rn \times rn} \equiv \mathbb{R}^{2\bar{n}\ell - 2\bar{n} \times 2\bar{n}\ell - 2\bar{n}}. 
+	\label{eqn:lamsize}
 \end{equation}
 %The non-zero structure of the matrix used to solve $\symbf{\lambda}$ in \eqnref{eqn:global_system_a} provides insight into the complexity the two operations in $\textbf{F}^{\intercal} \times \textbf{M}^{-1} \textbf{F}$. 
 %The memory needed to store the decomposed matrix consisting of $\textbf{M}$, $\textbf{F}$, $\textbf{F}^{\intercal}$, $\textbf{D}$ is minimally the size of each unique, decomposed sub-matrix. 
@@ -151,6 +160,11 @@ where $2\text{'s}$ denote the corner elements, $3\text{'s}$ denote the boundary 
 In \eqnref{eqn:nz_sum} we square each $\phi_i$ because $\textbf{F}^{\intercal}$ and  $\textbf{M}^{-1}\textbf{F}$ can both be derived from substitutions of $\textbf{F}^{\text{ind}}$, and the sum is multiplied by $n^2$ accounting for the additional dimension of each $\textbf{F}^k$. 
 
 %
+%  NOTE: PUTTING IT HERE TO LOOK NICE IT'S NOT LOGICALLY RELATED
+%
+\input{./figure/tts}
+
+%
 %
 %
 The ordering of the rows in $\textbf{F}^{\text{ind}}$ may not be equivalent in this case, but the final sum will be identical. 
@@ -163,6 +177,7 @@ From the number of non-zeros in $\symbf{\lambda}_\textbf{A}$ we derive the total
 This is again, expressed as a function of the number of elements
 \begin{equation}
 	\text{FLOPS}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F})) = 2 (\bar{n}/\ell)^4 \sum_{i=1}^{\ell^2} (\phi_i^2).
+	\label{eqn:flops_fmf}
 \end{equation}
 
 %
@@ -177,15 +192,20 @@ This is again, expressed as a function of the number of elements
 
 \noindent
 Here, we can also discretely determine the minimum number of bytes needed by this operation. 
-That is, for ever $v^Tv$, we load two $n^2$ vectors resulting in 
+That is, the memory needed for $\textbf{F}^{\intercal}$, $(\textbf{M}^{-1}\textbf{F})$, and $\symbf{\lambda}_\textbf{A}$
+
 \begin{equation}
-	\text{BYTES}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F})) = 2 (\bar{n}/\ell)^2 \sum_{i=1}^{\ell^2} (\phi_i^2).
+	\text{BYTES}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F})) = 8 \times 16 (\bar{n}/\ell)^3 + 8 \times (\bar{n}/\ell)^2 \sum_{i=1}^{\ell^2} (\phi_i^2).
+	\label{eqn:bytes_fmf}
 \end{equation}
+
 \noindent 
-From this we derive the \emph{optimal} arithmetic intensity of this operation  
+From this we derive the arithmetic intensity of this operation  
+
 \begin{equation}
-	\symbf{\beta}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F})) = \bar{n}^2 / \ell^2,
+	\symbf{\beta}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F})) = \frac{\text{FLOPS}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F}))}{\text{BYTES}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F}))}
 \end{equation}
+
 \noindent
 which we plot as a function of the number of elements in \figref{fig:ftmt_ai}.
 

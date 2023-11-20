@@ -1,19 +1,16 @@
-\begin{figure}
+\begin{figure}[h]
 \centering
 \begin{subfigure}[b]{1\columnwidth}
 \centering
 \begin{tikzpicture}
     \begin{axis}[
-        legend style={
-            at={(0.55, 1)},
-            anchor=north,legend columns=-1},
-        height=2.5in,
+        height=1.5in,
         width=\columnwidth,
         axis x line*=bottom,
         axis y line*=left,
         symbolic x coords = {9, 16, 25, 36, 49, 64, 100, 144, 196, 225, 400, 441, 576, 784, 900, 1225, 1600},
         xtick = {9, 49, 196, 576, 1600},
-        ytick distance=75,
+        ytick distance=100,
         domain = 9:1600,
         range = 0:450,
         xlabel={Elements},
@@ -60,30 +57,7 @@
             	(1225, 158.006306)
             	(1600, 338.225247)		
             };
-        \addplot[
-            mark=+,
-            color=red] coordinates {
-                (9, 3.186158)
-            	(16, 5.987428)
-            	(25, 8.304203)
-            	(36, 10.420171)
-            	(49, 12.213909)
-            	(64, 13.637598)
-            	(100, 16.047212)
-            	(144, 18.873235)             	 
-            	(196, 20.515413) 
-            	(225, 21.414372)
-            	(400, 24.244844) 
-            	(441, 24.780033) 
-            	(576, 26.379761) 
-            	(784, 27.517695) 
-            	(900, 28.265589) 
-            	(1225, 30.447891)
-            	(1600, 32.383344)		
-            };
-        \addlegendentry{SpMV}
-        \addlegendentry{MatMult}
-        \addlegendentry{$\symbf{\lambda} \text{ solve}$} 
+
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}
@@ -91,8 +65,11 @@
 \centering
 \begin{tikzpicture}
     \begin{axis}[
-        height=2.5in,
-        width=3.375in,
+        legend style={
+            at={(0.55, 1)},
+            anchor=north,legend columns=-1},
+        height=1.5in,
+        width=\columnwidth,
         axis x line*=bottom,
         axis y line*=left,
         symbolic x coords = {9, 16, 25, 36, 49, 64, 100, 144, 196, 225, 400, 441, 576, 784, 900, 1225, 1600},
@@ -144,28 +121,8 @@
                 (1225, 7.553876)
                 (1600, 14.450906)       
             };     
-        \addplot[
-            mark=+,
-            color=red] coordinates {
-                (9, 4.562236)
-                (16, 6.799783)
-                (25, 12.272318)
-                (36, 13.599193)
-                (49, 13.662346)
-                (64, 17.617201)
-                (100, 16.404489)
-                (144, 19.981687)                 
-                (196, 26.740117) 
-                (225, 22.875268)
-                (400, 27.343023) 
-                (441, 29.659641) 
-                (576, 27.462272) 
-                (784, 32.388184) 
-                (900, 30.020221) 
-                (1225, 33.37332)
-                (1600, 35.725706)       
-            };
-
+        \addlegendentry{SpMV}
+        \addlegendentry{MatMul} 
     \end{axis}
 \end{tikzpicture}
 \end{subfigure}

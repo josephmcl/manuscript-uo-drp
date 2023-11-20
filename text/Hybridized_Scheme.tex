@@ -2,7 +2,8 @@
 %
 %
 %
-The hybridized SBP-SAT formulation discretizes this problem into the form 
+The hybridized SBP-SAT formulation discretizes this problem into a mesh of elements. This enables the solution to each element to be computed independently after solving a global, trace system. 
+This is written in the form
 
 %
 %
@@ -19,7 +20,7 @@ The hybridized SBP-SAT formulation discretizes this problem into the form
     \left(\begin{array}{l}
         \bar{\textbf{g}} \\
         \gbd
-    \end{array}\right),
+    \end{array}\right).
     \label{eqn:hybrid_system}
 \end{equation}
 
@@ -27,7 +28,27 @@ The hybridized SBP-SAT formulation discretizes this problem into the form
 %
 %
 \noindent
-From the Schur complement we have $(\textbf{D} - \textbf{F}^{\intercal} \textbf{M}^{-1} \textbf{F}) \symbf{\lambda} = \gbd - \textbf{F}^{\intercal} \textbf{M}^{-1} \bar{\textbf{g}}$. 
+Here, $\textbf{u}$ remains a vector of the approximate solution to the grid points of the problem. 
+$\symbf{\lambda}$ is a vector of the trace variables along the internal interfaces of the system. 
+$\textbf{M}$ resembles $\textbf{A}$, but is \emph{block diagonal}, with each block encoding an element in the system. 
+This is a key quality of hybridization, allowing the system to computed in a series of operations only dependent the alignment of each block. 
+$\textbf{F}$ is a sparse matrix containing the internal interface boundary coefficients, and $\textbf{D}$ is sparse diagonal matrix.
+$\bar{\textbf{g}}$ and $\gbd$ contain the source data for the external boundaries and internal interfaces. 
+We derive this hybridized system from \citet{kozdon2021hybridized}, who provide a detailed description of the hybridized system.
+
+%
+%
+%
+From the Schur complement we have 
+
+\begin{equation}
+(\textbf{D} - \textbf{F}^{\intercal} \textbf{M}^{-1} \textbf{F}) \symbf{\lambda} = \gbd - \textbf{F}^{\intercal} \textbf{M}^{-1} \bar{\textbf{g}}.
+\end{equation}
+
+%
+%
+%
+\noindent 
 This is solved in two parts: the global problem,
 
 %
@@ -58,24 +79,7 @@ and the local problem,
 %
 %
 \noindent
-In this scheme, multiple elements with continuous domains are coupled with boundary coefficients resembling Dirichlet boundary conditions. 
-The boundary coefficients are factored out to $\textbf{F}$ and $\textbf{F}^{\intercal}$, leaving $\textbf{M}$ with a block diagonal non-zero pattern. 
-
-%
-%
-%
-\begin{figure}
-	\centering
-	\input{./figure/volume_diagram}
-	\caption{An illustration the volume, and arrangement of interfaces described by a 3-by-3 instance of the hybrid problem specified in \eqref{eqn:hybrid_system}.}
-	\label{fig:volume_diagram}
-\end{figure}
-
-%
-%
-%
-\noindent
-This permits us \textbf{a)} to compute much larger problems with less memory, especially if the problem is largely homogeneous, and \textbf{b)} to reduce the computational complexity of solving the system by instead solving several smaller systems. 
+This permits us \textbf{(a)} to compute much larger problems with less memory, especially if the problem is largely homogeneous, and \textbf{(b)} to reduce the computational complexity of solving the system by instead solving several smaller systems. 
 In both cases this allows us express the Eq. (\ref{eqn:global_system_a}--\ref{eqn:global_system_c}, \ref{eqn:local_system}) as a concatenation of smaller problems. 
 
 %
@@ -144,3 +148,12 @@ In a 3-by-3 example of the problem we reconstruct $\textbf{F}$ from the represen
 In this problem there are only 4 unique sub-matrices because the mesh of elements consists of identically sized 4-sided elements. 
 The location of entries in each row of \eqnref{eqn:find} correspond to the orientation of interfaces along a given element seen in \figref{fig:volume_diagram}, \emph{e.g.}, element 2 has interfaces 1, 2, and 8, corresponding to non-zeros in the identical columns in row 2 of $\textbf{F}^{\text{ind}}$.
 
+%
+%
+%
+\begin{figure}[h]
+    \centering
+    \input{./figure/volume_diagram}
+    \caption{An illustration the volume, and arrangement of interfaces described by a 3-by-3 instance of the hybrid problem specified in \eqref{eqn:hybrid_system}.}
+    \label{fig:volume_diagram}
+\end{figure}

@@ -1,0 +1,62 @@
+\begin{tikzpicture}
+    \begin{axis}[
+        legend style = {
+            at={(0.95, 1)},
+            anchor = north east,
+            legend columns = 1},
+        height=2in,
+        width=3.2in,
+        axis x line*=bottom,
+        axis y line*=left,
+        xtick={100, 600, 1100, 1600},
+        domain = 1:1600,
+        range = 1:1e10,
+        ymode = log,
+        xlabel={Elements},
+        ylabel={Cache events}]                     
+        \addplot[
+            mark=square,
+            color=blue] coordinates {
+                (9,40205717)
+                (16,50879473)
+                (25,53610700)
+                (36,71074406)
+                (49,12977133)
+                (64,2579077)
+                (100,1268591)
+                (144,1087212)
+                (196,922253)
+                (225,988667)
+                (400,1344455)
+                (441,941907)
+                (576,1436403)
+                (784,1294177)
+                (900,1097877)
+                (1225,749441)
+                (1600,874811)
+            };
+        \addplot[
+            mark=x,
+            color=violet] coordinates {
+                (9,38402769309)
+                (16,27712437645)
+                (25,10922310284)
+                (36,1249621355)
+                (49,230572757)
+                (64,161468223)
+                (100,98065404)
+                (144,33179551)
+                (196,10523799)
+                (225,8202903)
+                (400,2360980)
+                (441,2462776)
+                (576,1522457)
+                (784,2288844)
+                (900,11663667)
+                (1225,5858703)
+                (1600,14307506)
+            };
+        \addlegendentry{L3 writes}
+        \addlegendentry{L3 misses}
+    \end{axis}
+\end{tikzpicture}

@@ -2,15 +2,18 @@
 \begin{tikzpicture}
 \begin{axis}[
   /pgf/number format/1000 sep={\,},
-  height=3in,
+  height=2.5in,
+  width=\columnwidth,
   xlabel={\small $\ell^2$ (total elements)},
   %symbolic x coords = {16, 25, 36, 49, 64, 100, 144, 196, 225, 400, 441, 576, 784, 900, 1225, 1600},
   xtick={100, 600, 1100, 1600},
   %ymode=log,
+  axis x line*=bottom,
+  axis y line*=left,
   ylabel={\small Runtime (s)},
   legend style={
     font=\footnotesize,
-    at={(0.975, 0.975)},
+    at={(0.775, 0.975)},
     anchor=north east},
   legend cell align={left}]
     \addplot[
@@ -18,13 +21,13 @@
         color=black,dashed,thick] 
         table[col sep=comma,header=false,
         x index=0,y index=1] {data/ftmf_total_flops};
-    \addlegendentry{FLOPs model}
+    \addlegendentry{FLOP model}
     \addplot[
         select coords between index={1}{2500},
         color=gray,dotted,thick] 
         table[col sep=comma,header=false,
         x index=0,y index=1] {data/ftmf_bytes_sec};
-    \addlegendentry{Bytes model}
+    \addlegendentry{Memory model}
     \addplot[
       only marks,
       mark=o,

@@ -1,0 +1,95 @@
+%
+%
+%
+We ran several problems with an fixed number of grid points in the problem's volume, varying $n$ and $\ell$ proportionally, \emph{i.e.}, $\bar{n} = n \times \ell$ for some fixed $\ell$.
+Each hybridized system has more than 705\,600 points as the $\textbf{F}$  factors increase the size of the system as we add elements.
+Each problem was run with several thread configurations, from 1 thread to 28 threads. 
+Additionally total number of elements varied between 9, with 78\,400 grid points per element and 1600, with 441 grid points per elements. 
+With this we have a profile of the problem's strong-scaling performance, as well as an insight in the effects of varying element size within the same problem.  
+
+%
+%
+%
+The optimal runtime was found at $\ell^2 = 100$ for all thread configurations. 
+A full table of the compute time separated by thread count and element count is given in \figref{fig:tts_total}.
+We plot the speedup \emph{i.e.}, $S = T/T_{p}$ for the number of threads $p$ for the best and worst choices of $\ell$ in \figref{fig:sca_exp_a}.
+
+%
+%
+%
+\begin{figure}[h]
+	\input{./figure/sca_exp_1.tex}
+	\caption{
+	    The speed up of three pairs of $n$ and $\ell$ such that $\bar{n}$ is constant. 
+	    Scaling improves as $\ell$ increases; however, overall runtime is best at $ell = 10$. 
+	    }
+    \label{fig:sca_exp_a}
+\end{figure}
+
+Here, speedup scaling is proportional to $\ell$. 
+This is not in proportion to the overall runtime by choice of $\ell$; the best case ($\ell^2 = 100$) has worse scaling than $\ell^2 = 1600$ and better than $\ell^2 = 9$.
+This suggests that different components of the problem are contributing to the performance on either end of of this scale. 
+
+%
+%
+%
+To this end we profiled the runtime of the 7 operations that comprise the hybridized system. 
+Two operations utilize the majority of the compute time, those being SpMV from \eqnref{eqn:global_system_b} and MatMul from \eqnref{eqn:global_system_a}.
+The remaining 5 operations average $8\%$ of the compute time when run on a single thread. 
+The compute time of the two major operations are plotted in \figref{fig:runtime_comps} with the same configuration of problems. 
+
+%
+%
+%
+\input{./figure/runtime_components}
+
+%
+%
+%
+We exclude the time spent factorizing $\textbf{M}$ and $\symbf{\lambda}_{\textbf{A}}$ for this problem, its practical application would likely involve the reuse of these factorization several times. 
+It is worth noting that the cost of LU factorization for $\symbf{\lambda}_{\textbf{A}}$ becomes considerable as $\ell^2$ increases. 
+This is expected by \eqnref{eqn:lamsize} as the size of $\symbf{\lambda}_{\textbf{A}}$ increases with $\ell$ and by \eqnref{eqn:nz_sum} as the number of non-zeros increases with $\ell$.
+
+%
+%
+%
+\subsection{MatMul analysis}
+
+%
+%
+%
+\input{./figure/matmult_flopspers}
+
+%
+%
+%
+Out of the two kernels that comprise the majority of the runtime we see the most variability in MatMul operation from \eqnref{eqn:global_system_a}. 
+The operation is implemented in a similar manner to batched general matrix multiply (GEMM) methods \citep{wei2022lbbgemm}, but as our intermediate results from $\textbf{M}^{-1}\textbf{F}$ are dense vectors we instead compute a batched vector inner product. Batching methods allocate single threads to self-contained operations in contrast to  of coordinating multiple threads to solve a larger problem. 
+
+These results show an optimal range of elements to minimize runtime between 100 to 600 elements for $\bar{n} = 840$.
+When there are too few elements the problem has a greater number of FLOPs and bytes loaded. 
+The total FLOPs of this operation decrease for MatMul at a rate of $1/\ell^4$ from \eqnref{eqn:flops_fmf} and the total bytes decrease at $1/\ell^3$ from \eqnref{eqn:bytes_fmf}.
+As both of these terms decrease, our runtime decreases proportionally until we reach approximately 600 elements. 
+
+%The increase in runtime at this point is associated with increasing number of non-zeros in $\symbf{\lambda}_{\textbf{A}}$. 
+
+\begin{figure}
+	\input{./figure/matmul_write_miss} 
+	\caption{L3 writes and misses profiled for the strong scaling problem configuration. 
+	Though the total bytes written out to $\symbf{\lambda}_{\textbf{A}}$ increase with additional elements, fewer occur with every batch. 
+	Fewer writes per batch to more rows of $\symbf{\lambda}_{\textbf{A}}$ increase our cache misses and overall runtime.
+	}
+	\label{fig:mmwm}
+\end{figure}
+
+%but writes increase with the rate of non-zeros in $\symbf{\lambda}_{\textbf{A}}$ in \eqnref{eqn:nz_sum}. 
+
+%As each element becomes smaller and we increase the number of iterations, the number of writes per iteration decrease. 
+
+
+
+%This CPU is rated at a peak single-threaded FLOP rate of 8 GFLOPS/s and a peak memory bandwidth of 86 GB/s.
+
+
+%From this figure we see that the MatMul operation has a region of optimal performance between 196--576 elements, but begins to perform poorly outside of this range. 
+%This is clear as \fig

@@ -1,0 +1,56 @@
+\centering
+\begin{tikzpicture}
+  \begin{groupplot}[group style={
+        vertical sep=0.6cm,
+        horizontal sep=0.6cm,
+        group size=2 by 2},
+        width = {0.55\columnwidth},
+        height = {0.4\columnwidth},
+        xtick = {81, 196, 400},
+        axis x line*=bottom,
+        axis y line*=left
+        ]
+    \nextgroupplot[
+        legend to name={CommonLegend}, 
+            legend style = {
+                at={(0.55, 1)},
+                anchor = north,
+                legend columns = 1}]
+    \addplot[mark=triangle,
+            color=blue,
+            ytick = {0, 15, 30},
+            ] coordinates {
+        (64, 2.850768)
+        (81, 3.575837) 
+        (100, 4.804298)
+        (144, 7.409625)
+        (196, 10.974236)
+        (400, 25.562375)};
+    \addlegendentry{SpMV}
+    \addlegendimage{mark=x, color=violet}
+    \addlegendentry{MatMul}
+    \addlegendimage{mark=+, color=red}
+    \addlegendentry{$\symbf{\lambda} \text{ factorize}$}
+    \nextgroupplot[]
+    \addplot[mark=x,
+            color=violet] coordinates {
+        (64, 4.088154)
+        (81, 4.365303) 
+        (100, 4.467857)
+        (144, 4.938318)
+        (196, 5.806286)
+        (400, 7.537781)};
+    \nextgroupplot
+    \addplot[mark=+,
+            color=red] coordinates {
+        (64, 13.426294)
+        (81, 16.718145) 
+        (100, 20.588018)
+        (144, 31.325170)
+        (196, 41.698411)
+        (400, 82.765920)};
+    \end{groupplot}
+    \node[anchor=north] (title-x) at ($(group c1r2.south)-(0,0.5cm)$) {\small Elements ($\ell^2$)};
+    \node[anchor=south, rotate=90] (title-y) at ($(group c1r1.south west)!0.5!(group c1r2.north west)-(0.55,0cm)$) {\small Runtime (s)};
+    \node[anchor=west] at ($(group c1r2.east)+(0.75cm,-0.25cm)$) {\ref{CommonLegend}};
+\end{tikzpicture}

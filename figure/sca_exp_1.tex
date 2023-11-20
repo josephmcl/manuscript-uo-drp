@@ -1,0 +1,65 @@
+\begin{tikzpicture}
+    \begin{axis}[
+        legend style = {
+            at={(0.05, 1)},
+            anchor = north west,
+            legend columns = 1},
+        height=2.5in,
+        width=3.2in,
+        axis x line*=bottom,
+        axis y line*=left,
+        symbolic x coords = {1, 2, 4, 8, 16, 28},
+        xtick = {1, 2, 4, 8, 16, 28},
+        ytick = {1, 2, 4, 8, 16, 28},
+        domain = 1:28,
+        range = 1:28,
+        ymode = log,
+        log ticks with fixed point,
+        xlabel={Threads},
+        ylabel={Speed up}]      
+        \addplot[
+            no markers,
+            color=black] coordinates {
+                (1, 1)
+                (2, 2)
+                (4, 4)
+                (8, 8)
+                (16, 16)
+                (28, 28)
+            };                 
+        \addplot[
+            mark=square,
+            color=blue] coordinates {
+                (1, 1)
+                (2, 1.8)
+                (4, 3.26)
+                (8, 5.5)
+                (16, 8.3)
+                (28, 10.8)
+            };
+        \addplot[
+            mark=x,
+            color=violet] coordinates {
+                (1, 1)
+                (2, 2.13)
+                (4, 4)
+                (8, 6.67)
+                (16, 10.7)
+                (28, 19)
+            };
+        \addplot[
+            mark=triangle,
+            color=red] coordinates {
+                (1, 1)
+                (2, 2.05)
+                (4, 3.7)
+                (8, 7.4)
+                (16, 14.1)
+                (28, 24.8)
+            };
+        \addlegendentry{Ideal}
+        \addlegendentry{$\ell = 3$}
+        \addlegendentry{$\ell = 10$}
+        \addlegendentry{$\ell = 40$}
+    \end{axis}
+\end{tikzpicture}

@@ -1,0 +1,14 @@
+%
+%
+%
+Discrete numerical formulations of the 2-D Poisson eq\-uation typically take the form 
+\begin{equation}
+	\textbf{A} \textbf{u} = \textbf{b},
+\end{equation}
+
+\noindent
+where $\textbf{A}$ is a discrete analogue of the Laplacian operator in \eqnref{eqn:pois}, $\textbf{b}$ is a vector encoding the source function, $f$, and $\textbf{u}$ is an approximate solution, order-accurate to the exact solution, $u$. 
+Order of accuracy is typically determined by $\textbf{A}$ and varies on the choice of method. 
+In this problem we assemble $\textbf{A}$ with the SBP-SAT method given in detail by \citet{cheniterative}.
+The SBP-SAT method has practical characteristics of high order accuracy and a proof of energy conservation. 
+These qualities allow the SAT terms to act analogous to fluxes in discontinuous Galerkin methods (DGM), and as such allowed \citet{kozdon2021hybridized} to integrate the SBP-SAT method into a hybridized scheme. 

@@ -231,3 +231,20 @@ where $\text{nzind}(v_i)$ returns the index of the $i\text{th}$ non-zero of the 
     \label{fig:todo}
 \end{figure}
 
+
+\begin{tikzpicture}
+\begin{axis}[
+    width=\columnwidth,
+    height=\columnwidth,
+    view={0}{90},
+    colormap/violet,
+    declare function={f(\x,\y)=log10(((2 * pow(\y / \x, 4)) * (16 + (9*(4*\x-8)) + (16 * pow(\x-2, 2)))) / (8000000000 * 14));}]
+ \addplot3[surf,
+    shader = interp,
+    domain=3:40,
+    domain y=500:1000,
+    samples = 40,
+    samples y = 40,
+    z buffer=sort]{f(\x,\y)};
+\end{axis}
+\end{tikzpicture}

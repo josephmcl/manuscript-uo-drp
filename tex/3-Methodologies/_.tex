@@ -6,15 +6,22 @@
 %
 %
 %
-In this section, we derive a model of the performance model of the problem given the size of each element, $n^2$, and number of elements $\ell^2$.
-We also discuss our implementation of a solver for the 2-D Poisson Equation using the Hybridized SBP-SAT method. 
-We implement our solver in PETSc for a shared memory environment with shared memory parallelization via OpenMP.
+In this section, we analyze several operations in the problem and derive characteristics its performance given the size of each element, $n^2$, and number of elements $\ell^2$.
+We implement our problem in a shared memory context via OpenMP \citep{openmp08} parallelism.
+As the techniques between shared memory and distributed memory parallelism vary, our description reflects the characteristics of this problem that benefit shared memory parallelism.
 
 %
 %
 %
 \subsection{Performance model} 
 \input{text/Performance_Model}
+
+%
+%
+%
+%\input{./figure/tts}
+
+% \input{./figure/nonzeros}
 
 %\subsection{Computational model}
 %\begin{equation}
