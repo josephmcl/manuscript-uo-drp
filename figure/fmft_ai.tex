@@ -1,12 +1,15 @@
-\pgfplotsset{compat=newest, width=\columnwidth}
+\begin{center}
 \begin{tikzpicture}
 \begin{axis}[
   /pgf/number format/1000 sep={\,},
   height=2in,
     xlabel={\small $\ell^2$ (total elements)},
+  width =3in,
+  axis x line*=bottom,
+  axis y line*=left,
   xtick={9, 144, 484, 1024},
   %ymode=log,
-  ylabel={\small $\text{FLOP} / \text{byte}$},
+  ylabel={\small $\text{FLOP} / \text{byte}$}
   legend style={
     font=\footnotesize,
     at={(0.975, 0.05)},
@@ -19,3 +22,4 @@
         x index=0,y index=1] {data/ai_fmft};
 \end{axis}
 \end{tikzpicture}
+\end{center}

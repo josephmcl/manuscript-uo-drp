@@ -1,11 +1,57 @@
+The results of our implementation of the hybridized method and subsequent experiments show that the bulk of the problem's compute time is spent setting up the hybridized method. 
+Solving all local problems requires at most 1.5\% of the total compute time.
+The remaining 98.5\% of the compute time is spent solving the global system, and 91\% of the compute time is spend solely on the MatMul and SpMV operations. 
+
+%
+%
+%
+\subsection{Selecting an optimal batch size}
+All major operations in this problem are thread parallel batch operations, which often effectively map to the mathematics of the hybridized method. 
+We chose a problem that could be batched as evenly as possible to access the most parallelism in this model. 
+We demonstrated that the two expensive operations have optimal performance ranges. 
+For the MatMul operation this occurs when we decrease the amount of work, but are not yet write bound. 
+We plot time estimates from these two metrics in \figref{fig:ftmf_comp_1}.
+The FLOPs model estimates time from the FLOPs function in \eqnref{eqn:flops_fmf} normalized by the system's peak single core FLOPs ($8\mathrm{e}{+9}$). 
+The memory model is identical to the FLOPs model, but also multiplies the ratio of writes to bytes loads. 
+In this model we optimize for both the minimal number of flops, and the minimal write to load ratio. 
+
+%
+%
+%
+\begin{figure}[!h]
+	{\centering 
+	\input{figure/ftmf_comp_1}}
+	\caption{MatMul performance models ($\text{s}/\ell^2$) plotted against single-threaded results.}
+	\label{fig:ftmf_comp_1}
+\end{figure}
+
+We should be particularly interested in minimizing the write to load ratio, as it also resembles the increasing the runtime in the SpMV operation. 
+
+\subsection{Optimizing MatMul}
+Our implementation of batched MatMul naively computes batches, looping over each row and column of the components of $\textbf{F}^\intercal$ and $\textbf{M}^{-1}\textbf{F}$ to compute $\symbf{\lambda}_\textbf{A}$.
+This implementation doesn't translate to ideal cache utilization and is for our purposes, random. 
+Recall that the ordering of $\textbf{F}^{\text{ind}}$ does not matter as long as it remains consistent throughout the problem. 
+We could attempt to achieve a more ideal cache utilization, writing to $\symbf{\lambda}_\textbf{A}$ row by row as much as possible. 
+This could also be achieved without reordering $\textbf{F}^{\text{ind}}$ by modifying the underlying batching algorithm. 
+
+At scales where the problem and the work is larger, such as where $\ell < 10$ in our profiling problem there is still room to optimize there problems, as suggested by the FLOPs model \figref{fig:ftmf_comp_1}. 
+These problems minimize the runtime on the other operations of the global system, but increase the runtime of computing the global system. 
+We implemented these operations with PETSc, but other highly optimized libraries such Intel MKL may get us closer to the theoretical peak FLOPs. 
+Such problems would inherently be limited to isotropic, but still applicable for large systems. 
+
+The best performance of our problem ($\ell^2=100$) approaches the theoretical peak FLOPs, but scales poorly. 
+This suggests that while the problem utilizes the CPU effectively on a single thread, it is encountering additional cache misses that are being hidden by an ideal balance in work to cache latency. 
+As we add threads to the problem it computes more batches in the same amount of time, but that time is still bound by the cache latency.
+Further, as we reduce the arithmetic intensity by adding elements, we again reveal the cache latency, but in this case we have also added additional writes. 
+
+A solution here might use a specialized sparse block matrix formats. 
+To implement $\textbf{F}$ we on store the matrix components, instead of storing it outright. 
+A similar representation would reduce the work and the number of writes to $\symbf{\lambda}_\textbf{A}$, but could cause more caching issues either when factorizing $\symbf{\lambda}_\textbf{A}$ or using it in an iterative method.   
 
 
-Basically say: well it does have an effect on runtime so what does that mean. 
-
-Does that make macro elements less useful?  
-
-Does prior work need to reevaluate element size
-
-Does more work need to consider the element size an important component in mesh design?
-Definitely if using a hybridized method. 
-This is something people may want to be aware of. 
+\subsection{Future work}
+This work largely profiled a single problem with a constant volume, but substituting  different element sizes in each mesh. 
+Interesting problems that are larger, with more variability, and complex meshes require increasingly detailed models of performance. 
+Recent work that approaches larger anistropic problems with complex meshes often has utilizes additional resources such as machine learning \citep{Huang2021LearningOM,Ramabathiran2022AnisotropicSA} or functional analysis \citet{Ramabathiran2022AnisotropicSA}.
+Another work from \citet{10.1145/3581784.3607069} utilizes tensor completion methods to construct performance models. 
+A similar method could utilize the parameters of this problem, including the number of elements, the size of the problem, the variability in the domain, and the shape of the grid to construct performance models for large problems with performance data from small problems.

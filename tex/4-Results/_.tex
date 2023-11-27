@@ -21,10 +21,11 @@ Profiling information including cache accesses, writes, and flop counts were sou
 
 
 \subsection{SpMV analysis}
-The SpMV kernel is similarly batched to compute $\textbf{F}^\intercal \times (\textbf{M}^{-1}_{i} \textbf{\bar{g}})$ for each element. 
-Unlike MatMul, each intermediate vector in $\textbf{M}^{-1}_{i} \textbf{\bar{g}}$ is unique since $\textbf{\bar{g}}$ is unique. 
+The SpMV kernel is similarly batched to compute $\textbf{F}^\intercal \times (\textbf{M}^{-1}_{i} \bar{\textbf{g}})$ for each element. 
+Unlike MatMul, each intermediate vector in $\textbf{M}^{-1}_{i} \bar{\textbf{g}}$ is unique since $\bar{\textbf{g}}$ is unique. 
 Additionally, we compute proportionally fewer batches of $n^2 \times n$ SpMV than MatMul, and write out to significantly fewer memory locations. 
-
+We still encounter the same write miss penalty as we both increase the size of the intermediate vector $\textbf{F}^\intercal \times (\textbf{M}^{-1}_{i} \bar{\textbf{g}})$ and decrease the size of each batch operation proportionally.
+Even at the smallest element size each batch write 21 doubles, which is larger than a typical cache line. 
 
 %
 %
@@ -34,7 +35,7 @@ Additionally, we compute proportionally fewer batches of $n^2 \times n$ SpMV tha
 %
 %
 %
-To investigate the decreasing performance of the MatMul kernel we chose pairs of $\bar{n}$ and $\ell$ with similar total flops for the MatMul kernel.
+To investigate the decreasing performance of our MatMul and SpMV operations we chose pairs of $\bar{n}$ and $\ell$ with similar total flops for the MatMul kernel.
 These problems averaged $1.32\mathrm{e}11$ flops with a coefficient of variation of $2.3\mathrm{e}{-3}$.
 Though the flops between each problem varies insignificantly, and the bytes loa\-ded \emph{decrease}, the number of entries in $\symbf{\lambda_{\textbf{A}}}$ --- and hence the number of bytes written \emph{increases}. 
 This is illustrated in on the left of \figref{fig:mem_exp_b}; this also plots the measured number of L3 cache writes in MatMul kernel on the right. 
@@ -44,7 +45,7 @@ The number of entries are approximately $80\times$ greater than the number of L3
 %
 %
 %
-\begin{figure}[h]
+\begin{figure}[!h]
 	\input{./figure/mem_exp_2.tex}
 	\caption{
 	    The amount of non-zero elements in $\symbf{\lambda_{\textbf{A}}}$ for a set of problems with similar flop profiles (left) and the number of L3 cache data writes measured with PAPI (right). 
@@ -75,13 +76,7 @@ This is affirmed by \figref{fig:mmwm}, as additional the sum of L3 write and mis
 %
 %
 %
-\begin{figure}[!b]
-	{\centering 
-	\input{figure/ftmf_comp_1}}
-	\caption{\textbf{Matmul performance models (}$\text{s}/\ell^2$\textbf{) plotted against single-threaded results.} The FLOPs model plots total FLOPs / peak FLOPs while the memory model plots () . 
-	}
-	\label{fig:ftmf_comp_1}
-\end{figure}
+
 
 
 %\begin{mcfigure}

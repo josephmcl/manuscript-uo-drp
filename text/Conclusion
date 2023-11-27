@@ -1,0 +1,8 @@
+In this work we presented an implementation of a Hybridized 2-D Poisson equation, implemented in the PETSc scientific computing library, and parallelized in OpenMP. 
+Hybridized problems are assembled from multiple elements and coupled with interface conditions, which in total comprises the problem's volume.
+This problem is solved in two parts, wherein a sparse system is solved, allowing for the solution to be computed independently for each element.  
+We developed a theoretical model of the work required to compute the problem in FLOPs, derived from the mathematics of the problem. 
+We also provided a description of the problem size in bytes loaded, and the number of write operations that occur in major operations. 
+We conducted an experiment to demonstrate that the overall time-to-solution for this system is heavily effected by the number and size of each element chosen.
+For one problem with 705\,600 grid points we found the optimal runtime when we used 100 $40\times40$ elements. 
+Finally, we determined that the largest operations in the problem were latency bound, discussed strategies for reducing the effect, and what effects this might have on larger problems.  

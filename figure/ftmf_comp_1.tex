@@ -21,13 +21,13 @@
         color=black,dashed,thick] 
         table[col sep=comma,header=false,
         x index=0,y index=1] {data/ftmf_total_flops};
-    \addlegendentry{FLOP model}
+    \addlegendentry{$\frac{\text{FLOPs}}{\text{Peak FLOPs}}$}
     \addplot[
         select coords between index={1}{2500},
         color=gray,dotted,thick] 
         table[col sep=comma,header=false,
         x index=0,y index=1] {data/ftmf_bytes_sec};
-    \addlegendentry{Memory model}
+    \addlegendentry{$\frac{\text{FLOPs}}{\text{Peak FLOPs}}\frac{\text{Writes}}{\text{BYTE}}$}
     \addplot[
       only marks,
       mark=o,

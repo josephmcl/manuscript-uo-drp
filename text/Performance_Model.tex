@@ -10,16 +10,6 @@ Such operations are found in computing the global, trace problem \emph{i.e.}, Eq
 The benefit of this is now, each local system is computed as a series of smaller problems. 
 This decomposition strategy is characteristic of hyrbidized methods, and is the fundamental reason to utilize these methods, in particular for larger problems sizes within a shared-memory context \citep{kozdon2021hybridized, kolev2021efficient, fernandez2017hybridized}. 
 
-\begin{figure}[h]
-	\centering
-	\input{./figure/block_diagram}
-	\caption{A visualization of the non-zero pattern of the matrix operator of a 3-by-3 instance of the hybrid problem specified 
-	in \eqnref{eqn:hybrid_system}.}
-	\label{fig:block_diagram}
-\end{figure}
-
-
-
 %
 %
 %
@@ -33,13 +23,6 @@ the equations (\ref{eqn:global_system_a}--\ref{eqn:global_system_c},
 \ref{eqn:local_system}) as a concatenation of decomposed, smaller problems.
 
 To evaluate this the performance characteristics we fix the global number of volume points, $\bar{n}^2$, and vary the number of elements, to understand if there exists an optimal trade-off between the size of the decomposed matrices and quantity of computations derived from the decomposed matrices.
-
-\begin{figure}[h]
-	\centering
-	\input{./figure/lambda_diagram}
-	\caption{The growth of $\symbf{\lambda}_\textbf{A}$. For a constant number of grid points the number of non-zero entries in this matrix increases when increasing the number of elements.}
-	\label{fig:lambda_diagram}
-\end{figure}
 
 %
 %
@@ -89,7 +72,7 @@ In our implementation we solve this system through direct solvers made available
 %
 %
 \begin{aside}
-	In the homogeneous Poisson equation in \eqnref{eqn:problem_desc} we have 
+	In our isotropic 2-D Poisson equation in \eqnref{eqn:problem_desc} we have 
 	\begin{equation}
 		p = \begin{cases}
 		    \ell &  0 \leq \ell < 3 \\ 
@@ -114,6 +97,14 @@ Thus the total FLOPS we use to compute elements of size $n^2 \times n^2$ using f
 \noindent
 Since we fix the problem size $\bar{n}^2$, we write $n = \bar{n}/\ell$, allowing us to parameterize our model by the number of elements instead of the size of each element. 
 As $\bar{n}$ is constant, computing $\textbf{M}^{-1}\textbf{F}^\intercal$ will require proportionally fewer FLOPS as the number of elements increases.
+
+\begin{figure}[!ht]
+	\centering
+	\input{./figure/block_diagram}
+	\caption{A visualization of the non-zero pattern of the matrix operator of a 3-by-3 instance of the hybrid problem specified 
+	in \eqnref{eqn:hybrid_system}.}
+	\label{fig:block_diagram}
+\end{figure}
 
 %
 %
@@ -152,12 +143,23 @@ where
 \end{equation}
 \end{subequations}
 or, the sum of the square of the number of internal interfaces per element. 
+An example of the non-zero pattern of this result is shown in \figref{fig:lambda_diagram}; the pattern of this matrix is identical to $\symbf{\lambda}_\textbf{A}$ as it just includes the addition $\textbf{D}$.
+This sum demonstrates that $\symbf{\lambda}_\textbf{A}$ the number of non-zeros always increase as increase the number of elements. 
+
 The additional constraints we place on this problem, that being the square orientation of elements, we can write $\phi$ as 
 \begin{equation}
 	\phi = \left[ \underbrace{2, 2, 2, 2}_{4}, \underbrace{3 \cdots 3}_{4\ell - 8}, \underbrace{4 \cdots 4}_{(\ell-2)^2} \right] \in \mathbb{Z}^{\ell^2}, 
 \end{equation}
 where $2\text{'s}$ denote the corner elements, $3\text{'s}$ denote the boundary elements, and $4\text{'s}$ denote the internal elements. 
 In \eqnref{eqn:nz_sum} we square each $\phi_i$ because $\textbf{F}^{\intercal}$ and  $\textbf{M}^{-1}\textbf{F}$ can both be derived from substitutions of $\textbf{F}^{\text{ind}}$, and the sum is multiplied by $n^2$ accounting for the additional dimension of each $\textbf{F}^k$. 
+
+
+\begin{figure}[!t]
+	\centering
+	\input{./figure/lambda_diagram}
+	\caption{Additional non-zeros occur in $\symbf{\lambda}_\textbf{A}$ when adding elements. For a constant number of grid points, the number of non-zero entries in this matrix increases when adding more elements.}
+	\label{fig:lambda_diagram}
+\end{figure}
 
 %
 %  NOTE: PUTTING IT HERE TO LOOK NICE IT'S NOT LOGICALLY RELATED
@@ -180,15 +182,6 @@ This is again, expressed as a function of the number of elements
 	\label{eqn:flops_fmf}
 \end{equation}
 
-%
-%
-%
-\begin{figure}
-	{\centering 
-	\input{figure/fmft_ai}}
-	\caption{\textbf{The arithmetic intensity ($\text{FLOPs}/\text{byte}$) of $\textbf{F}^\intercal \times (\textbf{M}^{-1} \textbf{F})$.}}
-	\label{fig:ftmt_ai}
-\end{figure}
 
 \noindent
 Here, we can also discretely determine the minimum number of bytes needed by this operation. 
@@ -205,6 +198,16 @@ From this we derive the arithmetic intensity of this operation
 \begin{equation}
 	\symbf{\beta}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F})) = \frac{\text{FLOPS}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F}))}{\text{BYTES}(\textbf{F}^{\intercal} \times (\textbf{M}^{-1}\textbf{F}))}
 \end{equation}
+
+%
+%
+%
+\begin{figure}[!ht]
+	{\centering 
+	\input{figure/fmft_ai}}
+	\caption{\textbf{The arithmetic intensity ($\text{FLOPs}/\text{byte}$) of $\textbf{F}^\intercal \times (\textbf{M}^{-1} \textbf{F})$.}}
+	\label{fig:ftmt_ai}
+\end{figure}
 
 \noindent
 which we plot as a function of the number of elements in \figref{fig:ftmt_ai}.
